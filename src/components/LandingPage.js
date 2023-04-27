@@ -3,8 +3,8 @@ import React from 'react'
 const LandingPage = () => {
     const style = {
         title_landing: `text-pink font-vesting lg:text-9xl  box-border lg:mt-40 md:text-7xl md:mt-20`,
-        btn_landing: `bg-pink font-vesting rounded-full px-6 h-10 box-border mt-20 md:mt-10`,
-        cmp_landing: `h-screen bg-dim_black pt-6 `
+        btn_landing: `bg-pink font-vesting rounded-full px-6 h-10 box-border mt-20 `,
+        cmp_landing: `h-screen h-[calc(100vh-3rem)] bg-dim_black pt-6 `
     }
     return (
         <div className={style.cmp_landing}>
