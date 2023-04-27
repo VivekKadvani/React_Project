@@ -4,6 +4,7 @@ import { HeaderMain } from './components/Header';
 import NewListing from './components/NewListing';
 import CurrentListing from './components/CurrentListing';
 import WhiteList from './components/WhiteList';
+import LandingPage from './components/LandingPage';
 
 
 function App() {
@@ -13,9 +14,10 @@ function App() {
         <HeaderMain />
         <Routes>
           <Route path='/'>
-            <Route index element={<NewListing />} />
-            <Route path="/home" element={<NewListing />} />
+            <Route index element={<LandingPage />} />
+            <Route path="/home" element={<LandingPage />} />
           </Route>
+          <Route path="/new" element={<NewListing />} />
 
           <Route path="/current" element={<CurrentListing />} />
 

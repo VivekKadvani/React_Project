@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import lock_logo from '../images/lock_logo.png'
 import dark_mode from '../images/dark-theme.svg'
 
@@ -46,7 +46,7 @@ const HeaderMain = () => {
         <div className={style.header}>
             <img className={style.logo} src={lock_logo} alt="logo" />
             <div>
-                <NavLink to={'/home'} style={navLinkStyles} >New Listing</NavLink>
+                <NavLink to={'/new'} style={navLinkStyles} >New Listing</NavLink>
                 <NavLink to={'/current'} style={navLinkStyles} >Current Listing</NavLink>
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
