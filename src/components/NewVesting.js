@@ -4,7 +4,7 @@ import current_img from '../images/current.png'
 import whitelist_img from '../images/whitelist.png'
 
 import { NavLink } from "react-router-dom"
-const NewListing = () => {
+const NewVesting = () => {
 
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -21,7 +21,7 @@ const NewListing = () => {
                     <img className={style.img_div} src={new_img} alt="img" />
                 </div>
             </NavLink>
-            <NavLink to={'/lockForm'} className={style.div_inner}>
+            <NavLink to={'/currentVesting'} className={style.div_inner}>
                 <div>
                     <p className={style.div_inr_text}>Current Vesting</p>
                     <img className={style.img_div} src={current_img} alt="img" />
@@ -37,4 +37,4 @@ const NewListing = () => {
     )
 }
 
-export default NewListing
+export default NewVesting

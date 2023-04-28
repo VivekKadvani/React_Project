@@ -1,11 +1,12 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HeaderMain } from './components/Header';
-import NewListing from './components/NewListing';
-import CurrentListing from './components/CurrentListing';
+import NewVesting from './components/NewVesting';
 import WhiteList from './components/WhiteList';
 import LandingPage from './components/LandingPage';
 import LockForm from './components/LockForm';
+import CurrentVesting from './components/CurrentVesting';
+import VestingDetail from './components/VestingDetail';
 
 
 function App() {
@@ -18,11 +19,11 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="/home" element={<LandingPage />} />
           </Route>
-          <Route path="/new" element={<NewListing />} />
+          <Route path="/newVesting" element={<NewVesting />} />
 
-          <Route path="/current" element={<CurrentListing />} />
+          <Route path="/currentVesting" element={<CurrentVesting />} />
           <Route path="/lockToken" element={<LockForm />} />
-
+          <Route path="/vestingDetail/:vestingId" element={<VestingDetail />} />
           <Route path="/whitelist" element={<WhiteList />} />
 
         </Routes>

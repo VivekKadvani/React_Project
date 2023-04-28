@@ -47,8 +47,8 @@ const HeaderMain = () => {
             <img className={style.logo} src={lock_logo} alt="logo" />
             <div>
                 <NavLink to={'/home'} style={navLinkStyles} >Home</NavLink>
-                <NavLink to={'/new'} style={navLinkStyles} >New Listing</NavLink>
-                <NavLink to={'/current'} style={navLinkStyles} >Current Listing</NavLink>
+                <NavLink to={'/newVesting'} style={navLinkStyles} >New Listing</NavLink>
+                <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Listing</NavLink>
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
             <button className={style.wallet_connect}>Connect</button>
