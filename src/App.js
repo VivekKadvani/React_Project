@@ -5,6 +5,7 @@ import NewListing from './components/NewListing';
 import CurrentListing from './components/CurrentListing';
 import WhiteList from './components/WhiteList';
 import LandingPage from './components/LandingPage';
+import LockForm from './components/LockForm';
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
           <Route path="/new" element={<NewListing />} />
 
           <Route path="/current" element={<CurrentListing />} />
-
+          <Route path="/lockToken" element={<LockForm />} />
 
           <Route path="/whitelist" element={<WhiteList />} />
 
