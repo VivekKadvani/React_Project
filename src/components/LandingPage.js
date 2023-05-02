@@ -10,7 +10,7 @@ const LandingPage = () => {
     return (
         <div className={style.cmp_landing}>
             <p className={style.title_landing}>Vesting <br />Contract</p>
-            <NavLink to="/new">
+            <NavLink to="/newVesting">
                 <button className={style.btn_landing}>Get Start</button>
             </NavLink>
         </div>
