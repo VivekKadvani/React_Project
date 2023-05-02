@@ -10,7 +10,8 @@ module.exports = {
       'pink': '#F20D7B',
       'dim_black': '#1A1A1D',
       'white_text': '#D9D9D9',
-      'grey': '#484848'
+      'grey': '#484848',
+      'green': '#008a22'
     },
     fontFamily: {
       'vesting': ['Bruno Ace SC', 'Georgia, Cambria', 'Times New Roman', 'Times', 'serif'],

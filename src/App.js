@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HeaderMain } from './components/Header';
+import HeaderMain from './components/Header';
 import NewVesting from './components/NewVesting';
 import WhiteList from './components/WhiteList';
 import LandingPage from './components/LandingPage';

@@ -3,25 +3,7 @@ import { NavLink } from "react-router-dom"
 import lock_logo from '../images/lock_logo.png'
 import dark_mode from '../images/dark-theme.svg'
 
-const Header = () => {
 
-    const style = {
-        header: `bg-pink box-border h-12 flex justify-left items-center`,
-        logo: ' justify-left items-center box-border h-10 mx-2',
-        title: `font-vesting text-3xl`,
-        dark_mode_logo: `flex justify-end items-center box-border h-6  mr-8`,
-        wallet_connect: `font-vesting items-center rounded-full bg-dim_black h-8 mr-8 px-4 ml-auto text-white_text`,
-    }
-    return (
-        <div className={style.header}>
-            <img className={style.logo} src={lock_logo} alt="logo" />
-            <p className={style.title}>Vesting Contract</p>
-
-            <button className={style.wallet_connect}>Connect</button>
-            <img src={dark_mode} className={style.dark_mode_logo} alt="mode" />
-        </div>
-    )
-}
 
 const HeaderMain = () => {
     const style = {
@@ -47,7 +29,7 @@ const HeaderMain = () => {
             <img className={style.logo} src={lock_logo} alt="logo" />
             <div>
                 <NavLink to={'/home'} style={navLinkStyles} >Home</NavLink>
-                <NavLink to={'/newVesting'} style={navLinkStyles} >New Listing</NavLink>
+                <NavLink to={'/newVesting'} style={navLinkStyles} >New Vesting</NavLink>
                 <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Listing</NavLink>
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
@@ -58,4 +40,4 @@ const HeaderMain = () => {
 }
 
 
-export { Header, HeaderMain }
+export default HeaderMain 
