@@ -1,8 +1,5 @@
 import React from 'react'
-import { useParams, useSearchParams } from 'react-router-dom';
-import { NavLink } from 'react-router-dom'
-import ethLogo from '../images/ethLogo.png'
-import polygonLogo from '../images/polygonLogo.png'
+// import { useParams } from 'react-router-dom';
 const VestingDetail = () => {
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -23,7 +20,7 @@ const VestingDetail = () => {
         data: `text-dim_black pb-4`,
         data_green: `text-green pb-4`
     }
-    const { vestingId } = useParams();
+    // const { vestingId } = useParams();
     return (
         // <div>VestingDetail : {vestingId}</div>
         <div className={style.outer_div}>

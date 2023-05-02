@@ -2,10 +2,25 @@ import React from 'react'
 import { NavLink } from "react-router-dom"
 import lock_logo from '../images/lock_logo.png'
 import dark_mode from '../images/dark-theme.svg'
-
+import { useState } from 'react'
 
 
 const HeaderMain = () => {
+    const [l_value, setLabel] = useState('Connect')//define this useState hook for setting label value
+    //after that for connection to metamask this function is defined
+    async function connectWallet() {
+        try {
+            const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
+            const start = acc[0].substring(0, 6);
+            const end = acc[0].substring(acc[0].length - 4);
+            setLabel(`${start}...${end}`)
+
+            console.log("Wallet connected", acc[0]);
+        } catch (error) {
+            console.log("Failed to connect wallet: ", error);
+        }
+    };
+
     const style = {
         header: `bg-pink box-border h-12 flex justify-left items-center`,
         logo: ' justify-left items-center box-border h-10 mx-2',
@@ -33,7 +48,7 @@ const HeaderMain = () => {
                 <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Listing</NavLink>
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
-            <button className={style.wallet_connect}>Connect</button>
+            <button className={style.wallet_connect} onClick={connectWallet}>{l_value}</button>
             <img src={dark_mode} className={style.dark_mode_logo} alt="mode" />
         </div>
     )
