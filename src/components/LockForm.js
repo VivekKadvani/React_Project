@@ -26,43 +26,31 @@ const LockForm = () => {
     const [inputValue, setInputValue] = useState('');
     const navigate = useNavigate();
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contractAddress = '0xf193F9eF9AEA49abC654465808cbaF53ce60E255';
+    const contractAddress = '0x7a6494488C3A821E83cAa40c928697ea645C727B';
 
-    function view() {
+    async function view() {
 
-        console.log(form)
         const amount = form.amount;
         const duration = form.duration;
         const slice = form.slice;
         const cliff = form.cliff;
         const Beneficiaries = form.Beneficiaries;
         const addressoftoken = form.address_of_token
-        // console.log(amount);
         try {
-            lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
-            writeContract();
+            await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
+            navigate("/currentVesting")
         }
         catch (e) {
             console.log(e)
         }
-        //lock call here
-        alert("jay che")
-        navigate("/currentVesting")
     }
     const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken, { value: 10000000 });
+        const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
         console.log(locked);
     }
-    const writeContract = (async () => {
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer)
-        const tx = await contract.getTime();
-        console.log(tx)
-    })
     return (
 
         <div className={style.div_inner}>

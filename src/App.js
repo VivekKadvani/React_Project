@@ -13,6 +13,7 @@ function App() {
   return (
     <Router>
       <div className="text-center">
+
         <HeaderMain />
         <Routes>
           <Route path='/'>
@@ -27,6 +28,7 @@ function App() {
           <Route path="/whitelist" element={<WhiteList />} />
 
         </Routes>
+
       </div>
     </Router>
   );
