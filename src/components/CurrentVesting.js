@@ -47,22 +47,6 @@ const CurrentVesting = () => {
     window.addEventListener('load', () => {
         setFlag(1);
     });
-    // const [data, setData] = useState()
-    // const writeContract = async () => {
-    //     await provider.send("eth_requestAccounts", []);
-    //     const signer = provider.getSigner();
-    //     const contract = new ethers.Contract(contractAddress, ABI, signer)
-    //     const tx = await contract.vestings('0xc96Be35EbBdCB7aCa63FE4Ef47E9f3aA14cDfB6e', 0);
-    //     console.log(tx.amount);
-    //     const w_amount = await contract.calculate_available_withdraw_token(0);
-    //     data = { amount: tx.amount.toNumber(), duration: tx.amount.toNumber(), id: 1, withdrawable: w_amount.toNumber() }
-    // }
-    // writeContract()
-
-
-
-
-
 
     return (
         <div className={style.outer_div}>
@@ -83,7 +67,6 @@ const CurrentVesting = () => {
                 {loading ?
                     <TailSpin />
                     :
-
                     data &&
                     data.map((e, index) => {
                         console.log(e.amount)
