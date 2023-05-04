@@ -1,7 +1,10 @@
+import { TailSpin } from 'react-loader-spinner'
 import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
 import VestingDetail from './VestingDetail';
+
+
 const ethers = require("ethers")
 let data;
 const CurrentVesting = () => {
@@ -11,38 +14,39 @@ const CurrentVesting = () => {
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
         title_data: `grid grid-cols-7 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-7 mt-4 gap-4 font-form bg-white_text rounded-xl h-10 items-center mx-10`
+        vesting_data: `grid grid-cols-7 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`
 
     }
-    const [data, setData] = useState([]);
+    const [data, setData] = useState();
+    const [loading, setLoading] = useState(false)
+    const [amount, setAmount] = useState(0)
+    const [flag, setFlag] = useState(0)
 
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contractAddress = '0x7a6494488C3A821E83cAa40c928697ea645C727B';
     useEffect(() => {
         const getVesting = async () => {
+            setLoading(true)
             const w_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
-            console.log(w_add[0])
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const vestedSchedules = [];
             for (let i = 0; i < 3; i++) {
-                const schedule = await contract.vestings(w_add[0], i);
-                // if (schedule.beneficiaries.toLowerCase() == w_add[0].toLowerCase())
-                vestedSchedules.push(schedule);
+                let tempschedule = await contract.vestings(w_add[0], i);
+                let calculate_withdrawable = await contract.calculate_available_withdraw_token(i)
+                const schedule = { ...tempschedule, withdrawable: calculate_withdrawable };
+                vestedSchedules.push(await schedule);
             }
             setData(vestedSchedules);
-            console.log(await vestedSchedules[0].amount.toNumber());
-            // console.log(vestedSchedules[1].amount.toNumber());
-            // const vestedSchedulesJSON = JSON.stringify(vestedSchedules);
-            // console.log(vestedSchedulesJSON[0].beneficiaries)
+            setLoading(false);
         }
         getVesting()
 
-
-    }, [])
-
-    console.log(data)
+    }, [flag])
+    window.addEventListener('load', () => {
+        setFlag(1);
+    });
     // const [data, setData] = useState()
     // const writeContract = async () => {
     //     await provider.send("eth_requestAccounts", []);
@@ -67,6 +71,7 @@ const CurrentVesting = () => {
                     <p className={style.title_text}>Current Vesting</p>
                 </div>
 
+
                 <div className={style.title_data}>
                     <div>Id</div>
                     <div class='col-span-2 '>Beneficiaries</div>
@@ -75,29 +80,27 @@ const CurrentVesting = () => {
                     <div>Withdrawable</div>
                     <div>Network</div>
                 </div>
+                {loading ?
+                    <TailSpin />
+                    :
 
-                <NavLink to={`/vestingDetail/${88}`}>
-                    <div className={style.vesting_data}>
-                        <div>{1}</div>
-                        <div class='col-span-2'>a</div>
-                        <div>{data[0].amount.toNumber()}</div>
-                        <div>{data[0].duration}</div>
-                        <div>{data[0].cliff}</div>
-                        <div>sepolia</div>
-                    </div>
-                </NavLink>
-
-                <div className={style.vesting_data}>
-                    <div>Id</div>
-                    <div class='col-span-2'>Transaction Hash</div>
-                    <div>Amount</div>
-                    <div>Duration</div>
-                    <div>Withdrawable</div>
-                    <div>Network</div>
-
-                </div>
-
-
+                    data &&
+                    data.map((e, index) => {
+                        console.log(e.amount)
+                        return (
+                            <NavLink to={`/vestingDetail/${index}`} key={index}>
+                                <div className={style.vesting_data}>
+                                    <div>{index}</div>
+                                    <div class='col-span-2'>{e.beneficiaries}</div>
+                                    <div>{e.amount.toNumber()}</div>
+                                    <div>{e.duration.toNumber()}</div>
+                                    <div>{e.withdrawable.toNumber()}</div>
+                                    <div>sepolia</div>
+                                </div>
+                            </NavLink>
+                        )
+                    })
+                }
             </div>
         </div>
     )
