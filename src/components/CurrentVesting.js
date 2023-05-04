@@ -2,11 +2,9 @@ import { TailSpin } from 'react-loader-spinner'
 import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
-import VestingDetail from './VestingDetail';
-
-
 const ethers = require("ethers")
-let data;
+
+
 const CurrentVesting = () => {
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -19,7 +17,6 @@ const CurrentVesting = () => {
     }
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false)
-    const [amount, setAmount] = useState(0)
     const [flag, setFlag] = useState(0)
 
 
@@ -55,7 +52,6 @@ const CurrentVesting = () => {
                     <p className={style.title_text}>Current Vesting</p>
                 </div>
 
-
                 <div className={style.title_data}>
                     <div>Id</div>
                     <div class='col-span-2 '>Beneficiaries</div>
@@ -64,6 +60,7 @@ const CurrentVesting = () => {
                     <div>Withdrawable</div>
                     <div>Network</div>
                 </div>
+
                 {loading ?
                     <TailSpin />
                     :
