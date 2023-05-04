@@ -1,7 +1,8 @@
 import { TailSpin } from 'react-loader-spinner'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext, useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
+import { AppContext } from '../App'
 const ethers = require("ethers")
 
 
@@ -15,10 +16,9 @@ const CurrentVesting = () => {
         vesting_data: `grid grid-cols-7 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`
 
     }
-    const [data, setData] = useState();
+    const { data, setData } = useContext(AppContext)
     const [loading, setLoading] = useState(false)
     const [flag, setFlag] = useState(0)
-
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contractAddress = '0x7a6494488C3A821E83cAa40c928697ea645C727B';
@@ -29,17 +29,18 @@ const CurrentVesting = () => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const vestedSchedules = [];
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 let tempschedule = await contract.vestings(w_add[0], i);
                 let calculate_withdrawable = await contract.calculate_available_withdraw_token(i)
                 const schedule = { ...tempschedule, withdrawable: calculate_withdrawable };
                 vestedSchedules.push(await schedule);
             }
             setData(vestedSchedules);
+            console.log(vestedSchedules)
             setLoading(false);
+            localStorage.setItem("data", JSON.stringify(vestedSchedules))
         }
         getVesting()
-
     }, [flag])
     window.addEventListener('load', () => {
         setFlag(1);

@@ -1,5 +1,6 @@
-import React from 'react'
-// import { useParams } from 'react-router-dom';
+// import React, { useState, createContext, useContext, useEffect } from 'react'
+import { useParams } from 'react-router-dom';
+// import { AppContext } from '../App';
 const VestingDetail = () => {
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -20,41 +21,43 @@ const VestingDetail = () => {
         data: `text-dim_black pb-4`,
         data_green: `text-green pb-4`
     }
-    // const { vestingId } = useParams();
+    const { vestingId } = useParams();
+    const data = JSON.parse(localStorage.getItem("data"))
+    // console.log(data);
     return (
-        // <div>VestingDetail : {vestingId}</div>
         <div className={style.outer_div}>
             <div className={style.div_inner}>
                 <div className={style.title_div}>
                     <p className={style.title_text}>Vesting Detail</p>
                 </div>
                 <div className={style.form_div}>
-                    <div className={style.input_form_div}>
-                        <div className={style.input_form_div_left}>
-                            <p className={style.input_label}>Amount</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label}>Slice Period</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label}>Beneficiaries</p>
-                            <p className={style.data}>0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
-                            <p className={style.input_label}>Duration</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label}>Transaction Hash</p>
-                            <p className={style.data}>0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
-                        </div>
-                        <div className={style.input_form_div_left}>
-                            <p className={style.input_label}>Duration</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label}>Cliff</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label}>Address Of Token</p>
-                            <p className={style.data}>0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
-                            <p className={style.input_label}>Beneficiaries</p>
-                            <p className={style.data}>100</p>
-                            <p className={style.input_label_green}>Withdrawable</p>
-                            <p className={style.data_green}>NAN</p>
-                        </div>
-                    </div>
+                    {data &&
+                        <div className={style.input_form_div}>
+                            <div className={style.input_form_div_left}>
+                                <p className={style.input_label}>Amount</p>
+                                <p className={style.data}>{parseInt(data[vestingId].amount.hex)}</p>
+                                <p className={style.input_label}>Slice Period</p>
+                                <p className={style.data}>{parseInt(data[vestingId].slice_period)}</p>
+                                <p className={style.input_label}>Beneficiaries</p>
+                                <p className={style.data}>{data[vestingId].beneficiaries}</p>
+                                <p className={style.input_label}>Duration</p>
+                                <p className={style.data}>{parseInt(data[vestingId].duration.hex)}</p>
+                                <p className={style.input_label}>Transaction Hash</p>
+                                <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
+                            </div>
+                            <div className={style.input_form_div_left}>
+                                <p className={style.input_label}>Locked</p>
+                                <p className={style.data}>{(data[vestingId].locked) ? "true" : "false"}</p>
+                                <p className={style.input_label}>Cliff</p>
+                                <p className={style.data}>{parseInt(data[vestingId].cliff)}</p>
+                                <p className={style.input_label}>Address Of Token</p>
+                                <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
+                                <p className={style.input_label}>Recive on Interval</p>
+                                <p className={style.data}>{parseInt(data[vestingId].recive_on_interval.hex)}</p>
+                                <p className={style.input_label_green}>Withdrawable</p>
+                                <p className={style.data_green}>{parseInt(data[vestingId].withdrawable.hex)}</p>
+                            </div>
+                        </div>}
 
 
                 </div>

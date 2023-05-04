@@ -7,30 +7,35 @@ import LandingPage from './components/LandingPage';
 import LockForm from './components/LockForm';
 import CurrentVesting from './components/CurrentVesting';
 import VestingDetail from './components/VestingDetail';
+import { createContext, useState } from 'react';
 
+export const AppContext = createContext();
 
 function App() {
+  const [data, setData] = useState();
   return (
-    <Router>
-      <div className="text-center">
+    <AppContext.Provider value={{ data, setData }}>
+      <Router>
+        <div className="text-center">
 
-        <HeaderMain />
-        <Routes>
-          <Route path='/'>
-            <Route index element={<LandingPage />} />
-            <Route path="/home" element={<LandingPage />} />
-          </Route>
-          <Route path="/newVesting" element={<NewVesting />} />
+          <HeaderMain />
+          <Routes>
+            <Route path='/'>
+              <Route index element={<LandingPage />} />
+              <Route path="/home" element={<LandingPage />} />
+            </Route>
+            <Route path="/newVesting" element={<NewVesting />} />
 
-          <Route path="/currentVesting" element={<CurrentVesting />} />
-          <Route path="/lockToken" element={<LockForm />} />
-          <Route path="/vestingDetail/:vestingId" element={<VestingDetail />} />
-          <Route path="/whitelist" element={<WhiteList />} />
+            <Route path="/currentVesting" element={<CurrentVesting />} />
+            <Route path="/lockToken" element={<LockForm />} />
+            <Route path="/vestingDetail/:vestingId" element={<VestingDetail />} />
+            <Route path="/whitelist" element={<WhiteList />} />
 
-        </Routes>
+          </Routes>
 
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </AppContext.Provider>
   );
 }
 
