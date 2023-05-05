@@ -26,7 +26,7 @@ const LockForm = () => {
     const [inputValue, setInputValue] = useState('');
     const navigate = useNavigate();
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contractAddress = '0xb84999e2e217305Cf4b8006954821AC35e1824af';
+    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
 
     async function view() {
 

@@ -37,7 +37,7 @@ const VestingDetail = () => {
                                 <p className={style.input_label}>Amount</p>
                                 <p className={style.data}>{parseInt(data[vestingId].amount.hex)}</p>
                                 <p className={style.input_label}>Slice Period</p>
-                                <p className={style.data}>{parseInt(data[vestingId].slice_period)}</p>
+                                <p className={style.data}>{parseInt(data[vestingId].slice_period.hex)}</p>
                                 <p className={style.input_label}>Beneficiaries</p>
                                 <p className={style.data}>{data[vestingId].beneficiaries}</p>
                                 <p className={style.input_label}>Duration</p>
@@ -49,7 +49,7 @@ const VestingDetail = () => {
                                 <p className={style.input_label}>Locked</p>
                                 <p className={style.data}>{(data[vestingId].locked) ? "true" : "false"}</p>
                                 <p className={style.input_label}>Cliff</p>
-                                <p className={style.data}>{parseInt(data[vestingId].cliff)}</p>
+                                <p className={style.data}>{parseInt(data[vestingId].cliff.hex)}</p>
                                 <p className={style.input_label}>Address Of Token</p>
                                 <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
                                 <p className={style.input_label}>Recive on Interval</p>
