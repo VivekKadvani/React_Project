@@ -21,19 +21,23 @@ const CurrentVesting = () => {
     const [flag, setFlag] = useState(0)
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contractAddress = '0x7a6494488C3A821E83cAa40c928697ea645C727B';
+    const contractAddress = '0xb84999e2e217305Cf4b8006954821AC35e1824af';
     useEffect(() => {
         const getVesting = async () => {
             setLoading(true)
-            const w_add = await provider.send("eth_requestAccounts", []);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const vestedSchedules = [];
-            for (let i = 0; i < 2; i++) {
-                let tempschedule = await contract.vestings(w_add[0], i);
+            const len_vesting = await contract.vestings(wallet_add[0]).length
+            console.log("lengtj : ", len_vesting)
+            for (let i = 0; i < 1; i++) {
+
+                let tempschedule = await contract.vestings(wallet_add[0], i);
                 let calculate_withdrawable = await contract.calculate_available_withdraw_token(i)
                 const schedule = { ...tempschedule, withdrawable: calculate_withdrawable };
                 vestedSchedules.push(await schedule);
+
             }
             setData(vestedSchedules);
             console.log(vestedSchedules)
