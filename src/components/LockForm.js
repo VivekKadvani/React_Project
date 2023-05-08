@@ -35,6 +35,21 @@ const LockForm = () => {
         const Beneficiaries = form.Beneficiaries;
         const addressoftoken = form.address_of_token
         try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            let deme = null;
+            if (provider.provider.networkVersion == 80001)
+                deme = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${addressoftoken}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+            else if (provider.provider.networkVersion == 11155111)
+                deme = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${addressoftoken}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+            const respo = await deme.json()
+            const Tcontract = new ethers.Contract(addressoftoken, respo.result, signer);
+            const tx_allowance = await Tcontract.allowance(wallet_add[0], contractAddress)
+            const allowance = parseInt(tx_allowance);
+            if (allowance < amount) {
+                const tx_approve = await Tcontract.approve(contractAddress, amount)
+            }
             await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
             navigate("/currentVesting")
         }

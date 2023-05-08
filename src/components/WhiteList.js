@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { TailSpin } from 'react-loader-spinner'
 import ABI from './ABI.json'
+import Popup from './Popup'
+import { AppContext } from '../App'
 const ethers = require("ethers")
 
 const WhiteList = () => {
@@ -24,7 +26,7 @@ const WhiteList = () => {
     const [loading, setLoading] = useState(false)
     const [w_add, setFormData] = useState()
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
     useEffect(() => {
         const getVesting = async () => {
             setLoading(true)
@@ -72,45 +74,48 @@ const WhiteList = () => {
 
     return (
         <div className={style.outer_div}>
-            <div className={style.div_inner}>
-                <div className={style.title_div}>
-                    <p className={style.title_text}>Whitelisted Token</p>
+            {WalletConnection
+                ?
+                <div className={style.div_inner}>
+                    <div className={style.title_div}>
+                        <p className={style.title_text}>Whitelisted Token</p>
+                    </div>
+                    {
+                        AdminFlag
+                            ?
+                            <div className={style.addWhitelist_div}>
+                                <input type='text' className={style.input_field} placeholder="Address of Token" onChange={(event) => { setFormData(event.target.value) }} />
+                                <button className={style.btn_lock} onClick={addToWhitelist}>Add</button>
+                            </div>
+                            :
+                            <> </>
+                    }
+                    <div className={style.title_data}>
+                        <div>Id</div>
+                        <div>Name</div>
+                        <div class='col-span-2 '>Address</div>
+                    </div>
+                    {
+                        loading
+                            ?
+                            <TailSpin />
+                            :
+                            whiteListedToken
+                            &&
+                            whiteListedToken.map((e, index) => {
+                                return (
+                                    <div className={style.vesting_data} key={index}>
+                                        <div>{index}</div>
+                                        <div>{e.C_name}</div>
+                                        <div class='col-span-2 '>{e.C_address}</div>
+                                    </div>)
+                            })
+                    }
+
+
+
                 </div>
-                {
-                    AdminFlag
-                        ?
-                        <div className={style.addWhitelist_div}>
-                            <input type='text' className={style.input_field} placeholder="Address of Token" onChange={(event) => { setFormData(event.target.value) }} />
-                            <button className={style.btn_lock} onClick={addToWhitelist}>Add</button>
-                        </div>
-                        :
-                        <> </>
-                }
-                <div className={style.title_data}>
-                    <div>Id</div>
-                    <div>Name</div>
-                    <div class='col-span-2 '>Address</div>
-                </div>
-                {
-                    loading
-                        ?
-                        <TailSpin />
-                        :
-                        whiteListedToken
-                        &&
-                        whiteListedToken.map((e, index) => {
-                            return (
-                                <div className={style.vesting_data} key={index}>
-                                    <div>{index}</div>
-                                    <div>{e.C_name}</div>
-                                    <div class='col-span-2 '>{e.C_address}</div>
-                                </div>)
-                        })
-                }
-
-
-
-            </div>
+                : <><Popup /></>}
         </div>
     )
 }

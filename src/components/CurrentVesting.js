@@ -2,6 +2,7 @@ import { TailSpin } from 'react-loader-spinner'
 import React, { useEffect, useState, createContext, useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
+import Popup from './Popup'
 import { AppContext } from '../App'
 const ethers = require("ethers")
 
@@ -19,7 +20,7 @@ const CurrentVesting = () => {
     const [data, setData] = useState()
     const [loading, setLoading] = useState(false)
     const [flag, setFlag] = useState(0)
-
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
     useEffect(() => {
         const getVesting = async () => {
@@ -50,38 +51,40 @@ const CurrentVesting = () => {
 
     return (
         <div className={style.outer_div}>
-            <div className={style.div_inner}>
-                <div className={style.title_div}>
-                    <p className={style.title_text}>Current Vesting</p>
-                </div>
+            {WalletConnection
+                ?
+                <div className={style.div_inner}>
+                    <div className={style.title_div}>
+                        <p className={style.title_text}>Current Vesting</p>
+                    </div>
 
-                <div className={style.title_data}>
-                    <div>Id</div>
-                    <div class='col-span-2 '>Beneficiaries</div>
-                    <div>Amount</div>
-                    <div>Duration</div>
-                    <div>Withdrawable</div>
-                </div>
+                    <div className={style.title_data}>
+                        <div>Id</div>
+                        <div class='col-span-2 '>Beneficiaries</div>
+                        <div>Amount</div>
+                        <div>Duration</div>
+                        <div>Withdrawable</div>
+                    </div>
 
-                {loading ?
-                    <TailSpin />
-                    :
-                    data &&
-                    data.map((e, index) => {
-                        return (
-                            <NavLink to={`/vestingDetail/${index}`} key={index}>
-                                <div className={style.vesting_data}>
-                                    <div>{index}</div>
-                                    <div class='col-span-2'>{e.beneficiaries}</div>
-                                    <div>{e.amount.toNumber()}</div>
-                                    <div>{e.duration.toNumber()}</div>
-                                    <div>{e.withdrawable.toNumber()}</div>
-                                </div>
-                            </NavLink>
-                        )
-                    })
-                }
-            </div>
+                    {loading ?
+                        <TailSpin />
+                        :
+                        data &&
+                        data.map((e, index) => {
+                            return (
+                                <NavLink to={`/vestingDetail/${index}`} key={index}>
+                                    <div className={style.vesting_data}>
+                                        <div>{index}</div>
+                                        <div class='col-span-2'>{e.beneficiaries}</div>
+                                        <div>{e.amount.toNumber()}</div>
+                                        <div>{e.duration.toNumber()}</div>
+                                        <div>{e.withdrawable.toNumber()}</div>
+                                    </div>
+                                </NavLink>
+                            )
+                        })
+                    }
+                </div> : <><Popup /></>}
         </div>
     )
 }

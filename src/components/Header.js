@@ -36,14 +36,21 @@ const HeaderMain = () => {
         }
     })
     const style = {
-        header: `bg-pink box-border h-12 flex justify-left items-center`,
+        header: `bg-pink box-border h-12 flex justify-left inset-0 z-11  items-center`,
         logo: ' justify-left items-center box-border h-10 mx-2',
         dark_mode_logo: `flex justify-end items-center box-border h-6  mr-8`,
         wallet_connect: `font-vesting items-center rounded-full bg-dim_black h-8 mr-8 px-4 ml-auto text-white_text`,
         nav_link: `font-vesting mr-10`,
         nav_link_active: `text-white_text font-vesting mr-10`
     }
-
+    const whitemod = () => {
+        const bgColor = document.body.style.backgroundColor;
+        if (bgColor.toString() == "rgb(217, 217, 217)") {
+            document.body.style = "background-color:#1A1A1D"//white
+        }
+        else
+            document.body.style = "background-color:#D9D9D9;"//black
+    }
     const navLinkStyles = ({ isActive }) => {
         return {
             'color': isActive ? `#D9D9D9` : '#1A1A1D',
@@ -64,7 +71,7 @@ const HeaderMain = () => {
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
             <button className={style.wallet_connect} onClick={connectWallet}>{l_value}</button>
-            <img src={dark_mode} className={style.dark_mode_logo} alt="mode" />
+            <img src={dark_mode} className={style.dark_mode_logo} onClick={whitemod} alt="mode" />
         </div>
     )
 }
