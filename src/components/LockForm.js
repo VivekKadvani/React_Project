@@ -49,7 +49,9 @@ const LockForm = () => {
             const allowance = parseInt(tx_allowance);
             if (allowance < amount) {
                 const tx_approve = await Tcontract.approve(contractAddress, amount)
+
             }
+
             await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
             navigate("/currentVesting")
         }
@@ -57,6 +59,7 @@ const LockForm = () => {
             console.log(e)
         }
     }
+
     const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const acc = await provider.send("eth_requestAccounts", []);

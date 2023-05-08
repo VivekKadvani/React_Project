@@ -8,6 +8,7 @@ import Popup from './Popup'
 
 const NewVesting = () => {
 
+
     const style = {
         outer_div: `grid grid-cols-3 min-h-fit items-center  `,
         div_inner: `  bg-grey m-12  flex flex-col  justify-center rounded-2xl  hover:drop-shadow-3xl `,
