@@ -22,10 +22,8 @@ const LockForm = () => {
         network_name: `font-form pl-2 `
     }
     const [form, setForm] = useState({})
-    const [network, setNetwork] = useState('sepolia');
     const [inputValue, setInputValue] = useState('');
     const navigate = useNavigate();
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
 
     async function view() {
@@ -45,11 +43,11 @@ const LockForm = () => {
         }
     }
     const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
-        await provider.send("eth_requestAccounts", []);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const acc = await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
-        console.log(locked);
     }
     return (
 
@@ -76,28 +74,7 @@ const LockForm = () => {
                         <input type='text' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
                     </div>
                 </div>
-                <div className={style.cmp_network}>
-                    <div className={style.input_form_div}>
-                        <div className={style.network_div}>
-                            <input type="radio" name="topping" value="Sepolia Testnet" id="regular" onChange={(event) => { setNetwork(event.target.value) }} />
-                            <label htmlFor="regular"></label>
-                            <img className={style.networkLogo} src={ethLogo} alt="ETH" />
-                            <p className={style.network_name}>Goreli Testnet</p>
-                        </div>
-                        <div className={style.network_div}>
-                            <input type="radio" name="topping" value="Polygon Mumbai" id="regular" onChange={(event) => { setNetwork(event.target.value) }} />
-                            <label htmlFor="regular"></label>
-                            <img className={style.networkLogo} src={polygonLogo} alt="MTC" />
-                            <p className={style.network_name}>Polygon Mumbai</p>
-                        </div>
-                        <div className={style.network_div}>
-                            <input type="radio" name="topping" value="Ethereum Mainnet" id="regular" onChange={(event) => { setNetwork(event.target.value) }} />
-                            <label htmlFor="regular"></label>
-                            <img className={style.networkLogo} src={ethLogo} alt="ETH" />
-                            <p className={style.network_name}>Ethereum Mainnet</p>
-                        </div>
-                    </div>
-                </div>
+
             </div>
             <div>
                 <button className={style.btn_lock} onClick={view}>Lock Tocken</button>

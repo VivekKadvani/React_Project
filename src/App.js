@@ -12,9 +12,10 @@ import { createContext, useState } from 'react';
 export const AppContext = createContext();
 
 function App() {
-  const [data, setData] = useState();
+  const [WalletConnection, setWalletConnection] = useState(false)
+
   return (
-    <AppContext.Provider value={{ data, setData }}>
+    <AppContext.Provider value={{ WalletConnection, setWalletConnection }}>
       <Router>
         <div className="text-center">
 

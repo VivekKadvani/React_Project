@@ -12,25 +12,24 @@ const CurrentVesting = () => {
         div_inner: `h-[calc(100vh-20vh)] w-full bg-grey m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
-        title_data: `grid grid-cols-7 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-7 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`
+        title_data: `grid grid-cols-6 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
+        vesting_data: `grid grid-cols-6 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`
 
     }
-    const { data, setData } = useContext(AppContext)
+    const [data, setData] = useState()
     const [loading, setLoading] = useState(false)
     const [flag, setFlag] = useState(0)
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
     useEffect(() => {
         const getVesting = async () => {
             setLoading(true)
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const vestedSchedules = [];
             const len_vesting = parseInt(await contract.getTotalVesting());
-            // console.log("length : ", len_vesting)
             for (let i = 0; i < len_vesting; i++) {
 
                 let tempschedule = await contract.vestings(wallet_add[0], i);
@@ -40,9 +39,8 @@ const CurrentVesting = () => {
 
             }
             setData(vestedSchedules);
-            console.log(vestedSchedules)
             setLoading(false);
-            localStorage.setItem("data", JSON.stringify(vestedSchedules))
+            // localStorage.setItem("data", JSON.stringify(vestedSchedules))
         }
         getVesting()
     }, [flag])
@@ -63,7 +61,6 @@ const CurrentVesting = () => {
                     <div>Amount</div>
                     <div>Duration</div>
                     <div>Withdrawable</div>
-                    <div>Network</div>
                 </div>
 
                 {loading ?
@@ -71,7 +68,6 @@ const CurrentVesting = () => {
                     :
                     data &&
                     data.map((e, index) => {
-                        console.log(e.amount)
                         return (
                             <NavLink to={`/vestingDetail/${index}`} key={index}>
                                 <div className={style.vesting_data}>
@@ -80,7 +76,6 @@ const CurrentVesting = () => {
                                     <div>{e.amount.toNumber()}</div>
                                     <div>{e.duration.toNumber()}</div>
                                     <div>{e.withdrawable.toNumber()}</div>
-                                    <div>sepolia</div>
                                 </div>
                             </NavLink>
                         )

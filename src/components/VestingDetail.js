@@ -1,6 +1,8 @@
 // import React, { useState, createContext, useContext, useEffect } from 'react'
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-// import { AppContext } from '../App';
+import ABI from './ABI.json'
+const ethers = require("ethers")
 const VestingDetail = () => {
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -22,8 +24,38 @@ const VestingDetail = () => {
         data_green: `text-green pb-4`
     }
     const { vestingId } = useParams();
-    const data = JSON.parse(localStorage.getItem("data"))
+    const [data, setVestingData] = useState()
+    const [withdrawable, setWithdrawableToken] = useState(0)
+    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    // const data = JSON.parse(localStorage.getItem("data"))
     // console.log(data);
+    useEffect(() => {
+        const getVestingData = async () => {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const tempschedule = await contract.vestings(wallet_add[0], vestingId);
+            setVestingData(tempschedule)
+        }
+        getVestingData()
+    }, [])
+
+    const calculate_withdrawable = async () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, ABI, signer);
+        const withdrawable = await contract.calculate_available_withdraw_token(vestingId);
+        setWithdrawableToken(parseInt(withdrawable));
+    }
+    const withdraw = async () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, ABI, signer);
+        const tx = await contract.withdraw(vestingId);
+    }
     return (
         <div className={style.outer_div}>
             <div className={style.div_inner}>
@@ -35,36 +67,36 @@ const VestingDetail = () => {
                         <div className={style.input_form_div}>
                             <div className={style.input_form_div_left}>
                                 <p className={style.input_label}>Amount</p>
-                                <p className={style.data}>{parseInt(data[vestingId].amount.hex)}</p>
+                                <p className={style.data}>{parseInt(data.amount)}</p>
                                 <p className={style.input_label}>Slice Period</p>
-                                <p className={style.data}>{parseInt(data[vestingId].slice_period.hex)}</p>
+                                <p className={style.data}>{parseInt(data.slice_period)}</p>
                                 <p className={style.input_label}>Beneficiaries</p>
-                                <p className={style.data}>{data[vestingId].beneficiaries}</p>
+                                <p className={style.data}>{data.beneficiaries}</p>
                                 <p className={style.input_label}>Duration</p>
-                                <p className={style.data}>{parseInt(data[vestingId].duration.hex)}</p>
+                                <p className={style.data}>{parseInt(data.duration)}</p>
                                 <p className={style.input_label}>Transaction Hash</p>
                                 <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
                             </div>
                             <div className={style.input_form_div_left}>
                                 <p className={style.input_label}>Locked</p>
-                                <p className={style.data}>{(data[vestingId].locked) ? "true" : "false"}</p>
+                                <p className={style.data}>{(data.locked) ? "true" : "false"}</p>
                                 <p className={style.input_label}>Cliff</p>
-                                <p className={style.data}>{parseInt(data[vestingId].cliff.hex)}</p>
+                                <p className={style.data}>{parseInt(data.cliff)}</p>
                                 <p className={style.input_label}>Address Of Token</p>
-                                <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
+                                <p className={style.data}>{data.TokenAddress}</p>
                                 <p className={style.input_label}>Recive on Interval</p>
-                                <p className={style.data}>{parseInt(data[vestingId].recive_on_interval.hex)}</p>
+                                <p className={style.data}>{parseInt(data.recive_on_interval)}</p>
                                 <p className={style.input_label_green}>Withdrawable</p>
-                                <p className={style.data_green}>{parseInt(data[vestingId].withdrawable.hex)}</p>
+                                <p className={style.data_green}>{withdrawable}</p>
                             </div>
                         </div>}
 
 
                 </div>
                 <div>
-                    <button className={style.btn_withdraw}>Calculate</button>
+                    <button className={style.btn_withdraw} onClick={calculate_withdrawable}>Calculate</button>
 
-                    <button className={style.btn_withdraw}>Withdraw</button>
+                    <button className={style.btn_withdraw} onClick={withdraw}>Withdraw</button>
                 </div>
             </div>
         </div>

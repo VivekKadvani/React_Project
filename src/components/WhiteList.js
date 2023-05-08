@@ -10,7 +10,7 @@ const WhiteList = () => {
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
         title_data: `grid grid-cols-4 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-4 mt-4 gap-4 font-form bg-white_text rounded-xl h-10 items-center mx-10`,
+        vesting_data: `grid grid-cols-4 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
         addWhitelist_div: `flex  items-center mx-10`,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2 mr-10`,
         btn_lock: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border  `,
@@ -28,6 +28,7 @@ const WhiteList = () => {
     useEffect(() => {
         const getVesting = async () => {
             setLoading(true)
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
@@ -39,11 +40,16 @@ const WhiteList = () => {
 
             for (let i = 0; i < len_whitelist; i++) {
                 const tempContractAddress = await contract.WhiteListTokens(i)
-                const deme = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tempContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                let deme = null;
+                if (provider.provider.networkVersion == 80001)
+                    deme = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tempContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                else if (provider.provider.networkVersion == 11155111)
+                    deme = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tempContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
                 const respo = await deme.json()
                 const Tcontract = new ethers.Contract(tempContractAddress, respo.result, signer);
-                const name = await Tcontract.symbol()
-                whiteList.push({ C_address: tempContractAddress, C_name: name });
+                const name = await Tcontract.name()
+                const symbol = await Tcontract.symbol()
+                whiteList.push({ C_address: tempContractAddress, C_name: `${name} (${symbol})` });
             }
             setData(whiteList)
             setLoading(false)
@@ -52,15 +58,16 @@ const WhiteList = () => {
 
     }, [Flag])
     window.addEventListener('load', () => {
-        setFlag(Flag++);
+        setFlag(Flag + 1);
     });
     const addToWhitelist = async () => {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const tx = await contract.addWhitelist(w_add)
         tx.wait()
-        setFlag(Flag++)
+        setFlag(Flag + 1)
     }
 
     return (
@@ -94,7 +101,7 @@ const WhiteList = () => {
                         whiteListedToken.map((e, index) => {
                             return (
                                 <div className={style.vesting_data} key={index}>
-                                    <div>Id</div>
+                                    <div>{index}</div>
                                     <div>{e.C_name}</div>
                                     <div class='col-span-2 '>{e.C_address}</div>
                                 </div>)
