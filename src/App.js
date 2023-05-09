@@ -13,9 +13,9 @@ export const AppContext = createContext();
 
 function App() {
   const [WalletConnection, setWalletConnection] = useState(false)
-
+  const [whitemod_flag, setWhitemodflag] = useState(false)
   return (
-    <AppContext.Provider value={{ WalletConnection, setWalletConnection }}>
+    <AppContext.Provider value={{ WalletConnection, setWalletConnection, whitemod_flag, setWhitemodflag }}>
       <Router>
         <div className="text-center">
 

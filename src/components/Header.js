@@ -8,6 +8,7 @@ import { AppContext } from '../App'
 
 const HeaderMain = () => {
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const { whitemod_flag, setWhitemodflag } = useContext(AppContext);
     const [l_value, setLabel] = useState('Connect')//define this useState hook for setting label value
     //after that for connection to metamask this function is defined
 
@@ -29,9 +30,7 @@ const HeaderMain = () => {
     (!WalletConnection) ? connectWallet() : connectWallet()
     //set label on disconnect
     window.ethereum.on("accountsChanged", (accounts) => {
-        console.log("On acc changed :   ", accounts)
         if (accounts.length === 0) {
-            console.log("no acc connected")
             setLabel("Connect")
         }
     })
@@ -44,12 +43,14 @@ const HeaderMain = () => {
         nav_link_active: `text-white_text font-vesting mr-10`
     }
     const whitemod = () => {
+        whitemod_flag ? setWhitemodflag(false) : setWhitemodflag(true);
         const bgColor = document.body.style.backgroundColor;
-        if (bgColor.toString() == "rgb(217, 217, 217)") {
+
+        if (bgColor.toString() == "rgb(255, 255, 255)") {
             document.body.style = "background-color:#1A1A1D"//white
         }
         else
-            document.body.style = "background-color:#D9D9D9;"//black
+            document.body.style = "background-color:#ffffff;"//black
     }
     const navLinkStyles = ({ isActive }) => {
         return {

@@ -1,7 +1,9 @@
 // import React, { useState, createContext, useContext, useEffect } from 'react'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import ABI from './ABI.json'
+import { AppContext } from '../App'
+import Popup from './Popup';
 const ethers = require("ethers")
 const VestingDetail = () => {
     const style = {
@@ -27,6 +29,9 @@ const VestingDetail = () => {
     const [data, setVestingData] = useState()
     const [withdrawable, setWithdrawableToken] = useState(0)
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const [Flag, setFlag] = useState(0);
+    const [btn_disable, setDisable] = useState(false)
     // const data = JSON.parse(localStorage.getItem("data"))
     // console.log(data);
     useEffect(() => {
@@ -37,9 +42,11 @@ const VestingDetail = () => {
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const tempschedule = await contract.vestings(wallet_add[0], vestingId);
             setVestingData(tempschedule)
+            tempschedule.locked ? setDisable(false) : setDisable(true)
         }
         getVestingData()
-    }, [])
+        console.log('useefect')
+    }, [Flag])
 
     const calculate_withdrawable = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -56,49 +63,59 @@ const VestingDetail = () => {
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const tx = await contract.withdraw(vestingId);
     }
+    window.addEventListener('load', () => {
+        setFlag(Flag + 1);
+    });
+    window.ethereum.on("accountsChanged", (accounts) => {
+        setFlag(Flag + 1)
+        if (accounts.length === 0) {
+
+            setWalletConnection(false)
+        }
+    })
     return (
         <div className={style.outer_div}>
-            <div className={style.div_inner}>
-                <div className={style.title_div}>
-                    <p className={style.title_text}>Vesting Detail</p>
-                </div>
-                <div className={style.form_div}>
-                    {data &&
-                        <div className={style.input_form_div}>
-                            <div className={style.input_form_div_left}>
-                                <p className={style.input_label}>Amount</p>
-                                <p className={style.data}>{parseInt(data.amount)}</p>
-                                <p className={style.input_label}>Slice Period</p>
-                                <p className={style.data}>{parseInt(data.slice_period)}</p>
-                                <p className={style.input_label}>Beneficiaries</p>
-                                <p className={style.data}>{data.beneficiaries}</p>
-                                <p className={style.input_label}>Duration</p>
-                                <p className={style.data}>{parseInt(data.duration)}</p>
-                                <p className={style.input_label}>Transaction Hash</p>
-                                <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
-                            </div>
-                            <div className={style.input_form_div_left}>
-                                <p className={style.input_label}>Locked</p>
-                                <p className={style.data}>{(data.locked) ? "true" : "false"}</p>
-                                <p className={style.input_label}>Cliff</p>
-                                <p className={style.data}>{parseInt(data.cliff)}</p>
-                                <p className={style.input_label}>Address Of Token</p>
-                                <p className={style.data}>{data.TokenAddress}</p>
-                                <p className={style.input_label}>Recive on Interval</p>
-                                <p className={style.data}>{parseInt(data.recive_on_interval)}</p>
-                                <p className={style.input_label_green}>Withdrawable</p>
-                                <p className={style.data_green}>{withdrawable}</p>
-                            </div>
-                        </div>}
+            {WalletConnection ?
+                <div className={style.div_inner}>
+                    <div className={style.title_div}>
+                        <p className={style.title_text}>Vesting Detail</p>
+                    </div>
+                    <div className={style.form_div}>
+                        {data &&
+                            <div className={style.input_form_div}>
+                                <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Amount</p>
+                                    <p className={style.data}>{parseInt(data.amount)}</p>
+                                    <p className={style.input_label}>Slice Period</p>
+                                    <p className={style.data}>{parseInt(data.slice_period)}</p>
+                                    <p className={style.input_label}>Beneficiaries</p>
+                                    <p className={style.data}>{data.beneficiaries}</p>
+                                    <p className={style.input_label}>Duration</p>
+                                    <p className={style.data}>{parseInt(data.duration)}</p>
+                                    <p className={style.input_label}>Transaction Hash</p>
+                                    <p className={style.data}>R0xC9399199f40686cfacF7Ae7555Ef0DEfa0487Ebe</p>
+                                </div>
+                                <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Locked</p>
+                                    <p className={style.data}>{(data.locked) ? "true" : "false"}</p>
+                                    <p className={style.input_label}>Cliff</p>
+                                    <p className={style.data}>{parseInt(data.cliff)}</p>
+                                    <p className={style.input_label}>Address Of Token</p>
+                                    <p className={style.data}>{data.TokenAddress}</p>
+                                    <p className={style.input_label}>Recive on Interval</p>
+                                    <p className={style.data}>{parseInt(data.recive_on_interval)}</p>
+                                    <p className={style.input_label_green}>Withdrawable</p>
+                                    <p className={style.data_green}>{withdrawable}</p>
+                                </div>
+                            </div>}
 
 
-                </div>
-                <div>
-                    <button className={style.btn_withdraw} onClick={calculate_withdrawable}>Calculate</button>
-
-                    <button className={style.btn_withdraw} onClick={withdraw}>Withdraw</button>
-                </div>
-            </div>
+                    </div>
+                    <div>
+                        <button className={style.btn_withdraw} onClick={calculate_withdrawable}>Calculate</button>
+                        <button className={style.btn_withdraw} disabled={btn_disable} onClick={withdraw}>Withdraw</button>
+                    </div>
+                </div> : <Popup />}
         </div>
     )
 }

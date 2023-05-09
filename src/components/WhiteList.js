@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { TailSpin } from 'react-loader-spinner'
+import { TailSpin, Dna } from 'react-loader-spinner'
 import ABI from './ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
@@ -8,14 +8,15 @@ const ethers = require("ethers")
 const WhiteList = () => {
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
-        div_inner: `h-[calc(100vh-20vh)] w-full bg-grey m-12 rounded-xl  `,
+        div_inner: `h-fit pb-6  w-full bg-grey m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
-        title_data: `grid grid-cols-4 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-4 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
+        title_data: `grid grid-cols-5 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
+        vesting_data: `grid grid-cols-5 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
         addWhitelist_div: `flex  items-center mx-10`,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2 mr-10`,
-        btn_lock: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border  `,
+        btn_add: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `,
+        btn_remove: `bg-red font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `
 
     }
     const owner = "0x6051Dd0e7F5513b4bd73371780AEaa8bBe4130D4"
@@ -51,7 +52,8 @@ const WhiteList = () => {
                 const Tcontract = new ethers.Contract(tempContractAddress, respo.result, signer);
                 const name = await Tcontract.name()
                 const symbol = await Tcontract.symbol()
-                whiteList.push({ C_address: tempContractAddress, C_name: `${name} (${symbol})` });
+                const status = await contract.CheckWhitelist(tempContractAddress)
+                whiteList.push({ C_address: tempContractAddress, C_name: `${name} (${symbol})`, current: status });
             }
             setData(whiteList)
             setLoading(false)
@@ -62,13 +64,33 @@ const WhiteList = () => {
     window.addEventListener('load', () => {
         setFlag(Flag + 1);
     });
+    window.ethereum.on("accountsChanged", (accounts) => {
+        setFlag(Flag + 1)
+        if (accounts.length === 0) {
+
+            setWalletConnection(false)
+        }
+    })
     const addToWhitelist = async () => {
+        setLoading(true)
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const tx = await contract.addWhitelist(w_add)
         tx.wait()
+        setLoading(false)
+        setFlag(Flag + 1)
+    }
+    const removeFromWhitelist = async () => {
+        setLoading(true)
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(contractAddress, ABI, signer);
+        const tx = await contract.removeWhitelist(w_add)
+        tx.wait()
+        setLoading(false)
         setFlag(Flag + 1)
     }
 
@@ -85,7 +107,8 @@ const WhiteList = () => {
                             ?
                             <div className={style.addWhitelist_div}>
                                 <input type='text' className={style.input_field} placeholder="Address of Token" onChange={(event) => { setFormData(event.target.value) }} />
-                                <button className={style.btn_lock} onClick={addToWhitelist}>Add</button>
+                                <button className={style.btn_add} onClick={addToWhitelist}>Add</button>
+                                <button className={style.btn_remove} onClick={removeFromWhitelist}>Remove</button>
                             </div>
                             :
                             <> </>
@@ -94,11 +117,12 @@ const WhiteList = () => {
                         <div>Id</div>
                         <div>Name</div>
                         <div class='col-span-2 '>Address</div>
+                        <div> Status</div>
                     </div>
                     {
                         loading
                             ?
-                            <TailSpin />
+                            <div className='flex justify-center'><Dna color="#F20D7B" /></div>
                             :
                             whiteListedToken
                             &&
@@ -108,6 +132,7 @@ const WhiteList = () => {
                                         <div>{index}</div>
                                         <div>{e.C_name}</div>
                                         <div class='col-span-2 '>{e.C_address}</div>
+                                        <div>{e.current.toString()}</div>
                                     </div>)
                             })
                     }

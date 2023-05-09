@@ -9,6 +9,8 @@
     "@heroicons/react": "^2.0.17",
     "@material-tailwind/react": "^1.4.2",
     "@mui/material": "^5.12.2",
+    "@mui/x-date-pickers-pro": "^6.3.1",
+    "@syncfusion/ej2-react-calendars": "^21.2.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

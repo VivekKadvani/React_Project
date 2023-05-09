@@ -5,7 +5,6 @@ const LandingPage = () => {
     const style = {
         title_landing: `text-pink font-vesting lg:text-9xl  box-border lg:mt-40 md:text-7xl md:mt-20`,
         btn_landing: `bg-pink font-vesting rounded-full px-6 h-10 box-border mt-20 `,
-        cmp_landing: `  `
     }
     return (
         <div className={style.cmp_landing}>

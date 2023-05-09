@@ -10,8 +10,12 @@ module.exports = {
       'pink': '#F20D7B',
       'dim_black': '#1A1A1D',
       'white_text': '#D9D9D9',
-      'grey': '#484848',
-      'green': '#008a22'
+      'grey': '#303030',
+      'green': '#0aeb02',
+      'red': '#fc142b',
+      'light_pink': '#fff0f8',
+      'gradiant1': 'linear-gradient(to right, #430089, #82ffa1)'
+
     },
     fontFamily: {
       'vesting': ['Bruno Ace SC', 'Georgia, Cambria', 'Times New Roman', 'Times', 'serif'],
@@ -19,7 +23,7 @@ module.exports = {
     },
     dropShadow: {
       '3xl': '0  5px 10px rgba(242, 13, 123, 1)',
-
+      'dark': '0  5px 10px rgba(230, 230, 230, 1)'
     }
   },
   plugins: [],
