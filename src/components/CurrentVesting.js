@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
+import Footer from './Footer'
 const ethers = require("ethers")
 
 
@@ -95,6 +96,7 @@ const CurrentVesting = () => {
                         })
                     }
                 </div> : <><Popup /></>}
+            <Footer />
         </div>
     )
 }

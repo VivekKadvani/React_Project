@@ -1,4 +1,5 @@
 import React from 'react'
+import { Player } from '@lottiefiles/react-lottie-player';
 
 const Footer = () => {
 
@@ -6,7 +7,9 @@ const Footer = () => {
         div_footer: `h-10 bg-pink  mt-auto w-full `
     }
     return (
-        <Footer className={style.div_footer}>Footer</Footer>
+        <>
+            <Player src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js" className='player' />
+        </>
     )
 }
 

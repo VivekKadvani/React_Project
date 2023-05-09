@@ -14,6 +14,8 @@ module.exports = {
       'green': '#0aeb02',
       'red': '#fc142b',
       'light_pink': '#fff0f8',
+      'grey_dark': '#3C3C4399',
+      'white': '#ffffff',
       'gradiant1': 'linear-gradient(to right, #430089, #82ffa1)'
 
     },
