@@ -29,6 +29,8 @@ const WhiteList = () => {
     const [whiteListedToken, setData] = useState([])
     const [Flag, setFlag] = useState(0);
     const [loading, setLoading] = useState(false)
+
+    const [loading2, setLoading2] = useState(false)
     const [w_add, setFormData] = useState()
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
@@ -85,7 +87,9 @@ const WhiteList = () => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const tx = await contract.addWhitelist(w_add)
+            setLoading2(true)
             await tx.wait()
+            setLoading(false)
             toast.success('Transaction successful', {
                 position: "top-center",
                 autoClose: 5000,
@@ -131,49 +135,49 @@ const WhiteList = () => {
     return (
         <div className={style.outer_div}>
             {WalletConnection
-                ?
-                <div className={style.div_inner}>
-                    <div className={style.title_div}>
-                        <p className={style.title_text}>Whitelisted Token</p>
-                    </div>
-                    {
-                        AdminFlag
-                            ?
-                            <div className={style.addWhitelist_div}>
-                                <input type='text' className={style.input_field} placeholder="Address of Token" onChange={(event) => { setFormData(event.target.value) }} />
-                                <button className={style.btn_add} onClick={addToWhitelist}>Add</button>
-                                <button className={style.btn_remove} onClick={removeFromWhitelist}>Remove</button>
-                            </div>
-                            :
-                            <> </>
-                    }
-                    <div className={style.title_data}>
-                        <div>Id</div>
-                        <div>Name</div>
-                        <div class='col-span-2 '>Address</div>
-                        <div> Status</div>
-                    </div>
-                    {
-                        loading
-                            ?
-                            <div className='flex justify-center'><Dna color="#F20D7B" /></div>
-                            :
-                            whiteListedToken
-                            &&
-                            whiteListedToken.map((e, index) => {
-                                return (
-                                    <div className={style.vesting_data} key={index}>
-                                        <div>{index}</div>
-                                        <div>{e.C_name}</div>
-                                        <div class='col-span-2 '>{e.C_address}</div>
-                                        <div>{e.current.toString()}</div>
-                                    </div>)
-                            })
-                    }
+                ? (loading2 ? <LandingLock /> :
+                    <div className={style.div_inner}>
+                        <div className={style.title_div}>
+                            <p className={style.title_text}>Whitelisted Token</p>
+                        </div>
+                        {
+                            AdminFlag
+                                ?
+                                <div className={style.addWhitelist_div}>
+                                    <input type='text' className={style.input_field} placeholder="Address of Token" onChange={(event) => { setFormData(event.target.value) }} />
+                                    <button className={style.btn_add} onClick={addToWhitelist}>Add</button>
+                                    <button className={style.btn_remove} onClick={removeFromWhitelist}>Remove</button>
+                                </div>
+                                :
+                                <> </>
+                        }
+                        <div className={style.title_data}>
+                            <div>Id</div>
+                            <div>Name</div>
+                            <div class='col-span-2 '>Address</div>
+                            <div> Status</div>
+                        </div>
+                        {
+                            loading
+                                ?
+                                <div className='flex justify-center'><Dna color="#F20D7B" /></div>
+                                :
+                                whiteListedToken
+                                &&
+                                whiteListedToken.map((e, index) => {
+                                    return (
+                                        <div className={style.vesting_data} key={index}>
+                                            <div>{index}</div>
+                                            <div>{e.C_name}</div>
+                                            <div class='col-span-2 '>{e.C_address}</div>
+                                            <div>{e.current.toString()}</div>
+                                        </div>)
+                                })
+                        }
 
 
 
-                </div>
+                    </div>)
                 : <><Popup /></>}
         </div>
     )
