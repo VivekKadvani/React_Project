@@ -5,6 +5,7 @@ import Popup from './Popup'
 import { AppContext } from '../App'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import LandingLock from './LandingLock'
 const ethers = require("ethers")
 
 const LockForm = () => {
@@ -35,6 +36,7 @@ const LockForm = () => {
     const [addressOfToken_error, setAddressTokenError] = useState('')
     const [form, setForm] = useState({})
     const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate();
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
@@ -102,7 +104,9 @@ const LockForm = () => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
+            setLoading(true)
             await locked.wait()
+            setLoading(false)
             toast.success('Transaction successful', {
                 position: "top-center",
                 autoClose: 5000,
@@ -135,7 +139,7 @@ const LockForm = () => {
 
         <div className={style.div_inner}>
             {WalletConnection
-                ? <>
+                ? (loading ? <LandingLock /> : <>
                     <div className={style.title_div}>
                         <p className={style.title_text}>New Vesting</p>
                     </div>
@@ -179,7 +183,7 @@ const LockForm = () => {
                     </div>
                     <div>
                         <button className={style.btn_lock} onClick={SetupForm}>Lock Tocken</button>
-                    </div></> : <> <Popup /></>}
+                    </div></>) : <> <Popup /></>}
         </div>
     )
 }
