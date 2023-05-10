@@ -10,6 +10,7 @@ import VestingDetail from './components/VestingDetail';
 import { createContext, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Footer from './components/Footer';
 
 export const AppContext = createContext();
 
@@ -21,7 +22,7 @@ function App() {
     <AppContext.Provider value={{ WalletConnection, setWalletConnection, whitemod_flag, setWhitemodflag }}>
       <ToastContainer />
       <Router>
-        <div className="text-center">
+        <div className="text-center flex flex-col h-screen">
 
           <HeaderMain />
           <Routes>
@@ -37,6 +38,7 @@ function App() {
             <Route path="/whitelist" element={<WhiteList />} />
 
           </Routes>
+          <Footer className='self-end' />
 
         </div>
       </Router>
