@@ -36,7 +36,7 @@ const HeaderMain = () => {
     })
     const style = {
         header: `bg-pink box-border h-12 flex justify-left inset-0 z-11  items-center`,
-        logo: ' justify-left items-center box-border h-10 mx-2',
+        logo: ' justify-left items-center box-border h-10 mx-6',
         dark_mode_logo: `flex justify-end items-center box-border h-6  mr-8`,
         wallet_connect: `font-vesting items-center rounded-full bg-dim_black h-8 mr-8 px-4 ml-auto text-white_text`,
         nav_link: `font-vesting mr-10`,

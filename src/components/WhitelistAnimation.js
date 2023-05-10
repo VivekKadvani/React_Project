@@ -18,8 +18,8 @@ const WhitelistAnimation = () => {
     return (
         <>
             <Lottie options={defaultOptions}
-                height={400}
-                width={400} />
+                height={300}
+                width={300} />
         </>
     )
 }
