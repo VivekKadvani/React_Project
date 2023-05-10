@@ -68,7 +68,7 @@ const HeaderMain = () => {
             <div>
                 <NavLink to={'/home'} style={navLinkStyles} >Home</NavLink>
                 <NavLink to={'/newVesting'} style={navLinkStyles} >New Vesting</NavLink>
-                <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Listing</NavLink>
+                <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Vesting</NavLink>
                 <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
             </div>
             <button className={style.wallet_connect} onClick={connectWallet}>{l_value}</button>

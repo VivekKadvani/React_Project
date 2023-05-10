@@ -3,18 +3,21 @@ import { useNavigate } from 'react-router-dom'
 import ABI from './ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const ethers = require("ethers")
 
 const LockForm = () => {
+    const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
     const style = {
-        div_inner: `min-h-fit min-w-fit bg-grey m-12 rounded-xl  `,
+        div_inner: whitemod_flag ? `min-h-fit min-w-fit bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 rounded-xl  ` : `min-h-fit min-w-fit bg-grey m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
-        title_div: `flex m-6`,
+        title_div: `flex m-6 pt-2`,
         form_div: `m-11`,
         input_form_div: `flex justify-center min-w-fit `,
         btn_lock: `bg-pink font-vesting rounded-full px-6 mb-10 h-10 box-border  `,
-        input_field: `bg-white_text rounded font-form mb-2 w-full h-8 p-2`,
-        input_label: `font-form text-white_text justify-self-start mt-2 text-xl`,
+        input_field: whitemod_flag ? `bg-white_text  rounded font-form mb-2 w-full h-8 p-2` : `bg-dim_black text-white_text rounded font-form mb-2 w-full h-8 p-2`,
+        input_label: whitemod_flag ? `font-form text-dim_black justify-self-start mt-2 text-xl` : `font-form text-white justify-self-start mt-2 text-xl`,
         input_form_div_left: `flex flex-col items-start rounded-xl m-7 p-7 w-full`,
         input_form_div_left_child: `flex flex-col items-start rounded-xl m-7 p-7 w-full border-pink border-solid border-2`,
         network_div: `rounded-xl bg-white_text h-12 w-full  mx-9 flex items-center pl-4`,
@@ -92,11 +95,41 @@ const LockForm = () => {
         return (amount_result && slice_result && cliff_result && beneficiearies_result && addressOfToken_result && duration_result)
     }
     const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const acc = await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
+        try {
+
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const acc = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
+            await locked.wait()
+            toast.success('Transaction successful', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        catch (e) {
+            ((e.toString()).includes('user rejected transaction'))
+                ?
+                toast.error('User Reject Transaction', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: whitemod_flag ? "light" : "dark",
+                })
+                :
+                console.log(e)
+        }
     }
     return (
 
@@ -110,13 +143,13 @@ const LockForm = () => {
                         <div className={style.input_form_div}>
                             <div className={style.input_form_div_left}>
                                 <p className={style.input_label}>Amount</p>
-                                <input type='number' required className={style.input_field} onChange={(event) => { setForm({ ...form, amount: event.target.value }) }} />
+                                <input type='number' placeholder='Enter amount here' required className={style.input_field} onChange={(event) => { setForm({ ...form, amount: event.target.value }) }} />
                                 <span className={style.formValidationError}>{amount_error}</span>
                                 <p className={style.input_label}>Slice Period</p>
-                                <input type='number' className={style.input_field} onChange={(event) => { setForm({ ...form, slice: event.target.value }) }} />
+                                <input type='number' placeholder='Enter slice period here' className={style.input_field} onChange={(event) => { setForm({ ...form, slice: event.target.value }) }} />
                                 <span className={style.formValidationError}>{slice_error}</span>
                                 <p className={style.input_label}>Beneficiaries</p>
-                                <input type='text' className={style.input_field} onChange={(event) => { setForm({ ...form, Beneficiaries: event.target.value }) }} />
+                                <input type='text' placeholder='Enter Beneficiaries address here' className={style.input_field} onChange={(event) => { setForm({ ...form, Beneficiaries: event.target.value }) }} />
                                 <span className={style.formValidationError}>{beneficiaries_error}</span>
                             </div>
                             <div className={style.input_form_div_left}>
@@ -138,7 +171,7 @@ const LockForm = () => {
                                 }} />
                                 <span className={style.formValidationError}>{cliff_error}</span>
                                 <p className={style.input_label}>Address Of Token</p>
-                                <input type='text' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
+                                <input type='text' placeholder='Enter address of token' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
                                 <span className={style.formValidationError}>{addressOfToken_error}</span>
                             </div>
                         </div>

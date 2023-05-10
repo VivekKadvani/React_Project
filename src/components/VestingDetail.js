@@ -4,17 +4,21 @@ import { useParams } from 'react-router-dom';
 import ABI from './ABI.json'
 import { AppContext } from '../App'
 import Popup from './Popup';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const ethers = require("ethers")
 const VestingDetail = () => {
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
+    const [btn_disable, setDisable] = useState(false)
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
         div_inner: !whitemod_flag ? `h-fit pb-10 w-full bg-grey m-12 rounded-xl  ` : `h-fit pb-10 w-full bg-light_pink m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
-        form_div: whitemod_flag ? `m-11 bg-white shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] rounded-xl` : `m-11 bg-dim_black  shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] rounded-xl`,
+        form_div: whitemod_flag ? `m-11 bg-white_text shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] rounded-xl` : `m-11 bg-dim_black  shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] rounded-xl`,
         input_form_div: `flex justify-center `,
-        btn_withdraw: `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
+        btn_withdraw: btn_disable ? `bg-pink opacity-25 font-vesting rounded-full px-6 h-10 box-border mx-10  ` : `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2`,
         input_label: whitemod_flag ? `font-form text-dim_black justify-self-start mt-4 text-xl` : `font-form text-white justify-self-start mt-4 text-xl`,
         input_label_green: `font-form text-green justify-self-start mt-4 text-xl`,
@@ -32,7 +36,6 @@ const VestingDetail = () => {
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const [Flag, setFlag] = useState(0);
-    const [btn_disable, setDisable] = useState(false)
     // const data = JSON.parse(localStorage.getItem("data"))
     // console.log(data);
     useEffect(() => {
@@ -56,13 +59,45 @@ const VestingDetail = () => {
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const withdrawable = await contract.calculate_available_withdraw_token(vestingId);
         setWithdrawableToken(parseInt(withdrawable));
+        if (parseInt(withdrawable) == 0)
+            setDisable(true)
     }
     const withdraw = async () => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const tx = await contract.withdraw(vestingId);
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const tx = await contract.withdraw(vestingId);
+            await tx.wait()
+            toast.success('Transaction successful', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        catch (e) {
+            ((e.toString()).includes('user rejected transaction'))
+                ?
+                toast.error('User Reject Transaction', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: whitemod_flag ? "light" : "dark",
+                })
+                :
+                console.log(e)
+        }
+
     }
     window.addEventListener('load', () => {
         setFlag(Flag + 1);

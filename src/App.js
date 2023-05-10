@@ -8,14 +8,18 @@ import LockForm from './components/LockForm';
 import CurrentVesting from './components/CurrentVesting';
 import VestingDetail from './components/VestingDetail';
 import { createContext, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const AppContext = createContext();
 
 function App() {
   const [WalletConnection, setWalletConnection] = useState(false)
   const [whitemod_flag, setWhitemodflag] = useState(false)
+
   return (
     <AppContext.Provider value={{ WalletConnection, setWalletConnection, whitemod_flag, setWhitemodflag }}>
+      <ToastContainer />
       <Router>
         <div className="text-center">
 

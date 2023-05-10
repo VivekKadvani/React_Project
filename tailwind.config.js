@@ -9,7 +9,7 @@ module.exports = {
       // Configure your color palette here
       'pink': '#F20D7B',
       'dim_black': '#1A1A1D',
-      'white_text': '#D9D9D9',
+      'white_text': '#D9D9E2',
       'grey': '#303030',
       'green': '#0aeb02',
       'red': '#fc142b',

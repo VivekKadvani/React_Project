@@ -3,16 +3,20 @@ import { TailSpin, Dna } from 'react-loader-spinner'
 import ABI from './ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LandingLock from './LandingLock'
 const ethers = require("ethers")
 
 const WhiteList = () => {
+    const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
-        div_inner: `h-fit pb-6  w-full bg-grey m-12 rounded-xl  `,
+        div_inner: !whitemod_flag ? `h-fit pb-6  w-full bg-grey m-12 rounded-xl` : `h-fit pb-6  w-full bg-light_pink m-12 rounded-xl`,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
         title_data: `grid grid-cols-5 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-5 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
+        vesting_data: !whitemod_flag ? `grid grid-cols-5 mt-4 gap-4 text-white bg-dim_black rounded-xl h-10 items-center mx-10` : `grid grid-cols-5 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
         addWhitelist_div: `flex  items-center mx-10`,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2 mr-10`,
         btn_add: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `,
@@ -60,6 +64,7 @@ const WhiteList = () => {
         }
         getVesting()
 
+
     }, [Flag])
     window.addEventListener('load', () => {
         setFlag(Flag + 1);
@@ -73,14 +78,43 @@ const WhiteList = () => {
     })
     const addToWhitelist = async () => {
         setLoading(true)
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const tx = await contract.addWhitelist(w_add)
-        tx.wait()
-        setLoading(false)
-        setFlag(Flag + 1)
+
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const tx = await contract.addWhitelist(w_add)
+            await tx.wait()
+            toast.success('Transaction successful', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+            setLoading(false)
+            setFlag(Flag + 1)
+        }
+        catch (e) {
+            ((e.toString()).includes('user rejected transaction'))
+                ?
+                toast.error('User Reject Transaction', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: whitemod_flag ? "light" : "dark",
+                })
+                :
+                console.log(e)
+        }
     }
     const removeFromWhitelist = async () => {
         setLoading(true)

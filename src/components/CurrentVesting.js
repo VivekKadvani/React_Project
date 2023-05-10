@@ -4,27 +4,24 @@ import { NavLink } from 'react-router-dom'
 import ABI from './ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
-import Footer from './Footer'
 const ethers = require("ethers")
 
 
 const CurrentVesting = () => {
+    const { whitemod_flag, setWhitemodflag } = useContext(AppContext);
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
-        div_inner: `h-fit pb-10 w-full bg-grey m-12 rounded-xl  `,
-        div_inner_dark: `h-fit pb-10 w-full h-72 bg-light_pink m-12 rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] `,
+        div_inner: !whitemod_flag ? `h-fit pb-10 w-full bg-grey m-12 rounded-xl ` : `h-fit pb-10 w-full h-72 bg-light_pink m-12 rounded-xl shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
         title_data: `grid grid-cols-6 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: `grid grid-cols-6 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
-        vesting_data_dark: `grid grid-cols-6 mt-4 gap-4  bg-dim_black text-white_text rounded-xl h-10 items-center mx-10`
+        vesting_data: whitemod_flag ? `grid grid-cols-6 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10` : `grid grid-cols-6 mt-4 gap-4  bg-dim_black text-white rounded-xl h-10 items-center mx-10`,
 
     }
     const [data, setData] = useState()
     const [loading, setLoading] = useState(false)
     const [flag, setFlag] = useState(0)
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
-    const { whitemod_flag, setWhitemodflag } = useContext(AppContext);
     console.log(whitemod_flag);
     const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
     useEffect(() => {
@@ -60,11 +57,11 @@ const CurrentVesting = () => {
             setWalletConnection(false)
         }
     })
-    return (
+    return (<>
         <div className={style.outer_div}>
             {WalletConnection
                 ?
-                <div className={(!whitemod_flag) ? style.div_inner : style.div_inner_dark} >
+                <div className={style.div_inner} >
                     <div className={style.title_div}>
                         <p className={style.title_text}>Current Vesting</p>
                     </div>
@@ -84,7 +81,7 @@ const CurrentVesting = () => {
                         data.map((e, index) => {
                             return (
                                 <NavLink to={`/vestingDetail/${index}`} key={index}>
-                                    <div className={(!whitemod_flag) ? style.vesting_data : style.vesting_data_dark}>
+                                    <div className={style.vesting_data}>
                                         <div>{index}</div>
                                         <div class='col-span-2'>{e.beneficiaries}</div>
                                         <div>{e.amount.toNumber()}</div>
@@ -96,8 +93,9 @@ const CurrentVesting = () => {
                         })
                     }
                 </div> : <><Popup /></>}
-            <Footer />
+
         </div>
+    </>
     )
 }
 
