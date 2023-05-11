@@ -25,8 +25,8 @@ const WhiteList = () => {
         div_inner: !whitemod_flag ? `h-fit pb-6  w-full bg-grey m-12 rounded-xl` : `h-fit pb-6  w-full bg-light_pink m-12 rounded-xl`,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
         title_div: `flex m-6`,
-        title_data: `grid grid-cols-5 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
-        vesting_data: !whitemod_flag ? `grid grid-cols-5 mt-4 gap-4 text-white bg-dim_black rounded-xl h-10 items-center mx-10` : `grid grid-cols-5 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
+        title_data: `grid grid-cols-4 gap-4 mb-2 font-bold font-form bg-pink rounded-xl h-12 items-center mx-10`,
+        vesting_data: !whitemod_flag ? `grid grid-cols-4 mt-4 gap-4 text-white bg-dim_black rounded-xl h-10 items-center mx-10` : `grid grid-cols-5 mt-4 gap-4  bg-white_text rounded-xl h-10 items-center mx-10`,
         addWhitelist_div: `flex  items-center mx-10`,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2 mr-10`,
         btn_add: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `,
@@ -158,7 +158,7 @@ const WhiteList = () => {
                             <div>Id</div>
                             <div>Name</div>
                             <div class='col-span-2 '>Address</div>
-                            <div> Status</div>
+
                         </div>
                         {
                             loading

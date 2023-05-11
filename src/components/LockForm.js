@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ABI from '../ABI/ABI.json'
 import Popup from './Popup'
@@ -22,6 +22,7 @@ const LockForm = () => {
     const [form, setForm] = useState({})
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false)
+    const [whiteListedToken, setData] = useState([])
     const navigate = useNavigate();
 
     const style = {
@@ -31,7 +32,8 @@ const LockForm = () => {
         form_div: `m-11 mb-2`,
         input_form_div: `flex justify-center min-w-fit `,
         btn_lock: `bg-pink font-vesting rounded-full px-6 mb-10 h-10 box-border  `,
-        input_field: whitemod_flag ? `bg-white_text  rounded font-form mb-2 w-full h-8 p-2` : `bg-dim_black text-white_text rounded font-form mb-2 w-full h-8 p-2`,
+        input_field: whitemod_flag ? `bg-white_text  rounded font-form mb-2 w-full h-8 p-2` : `bg-dim_black text-white_text rounded font-form mb-2 w-full h-10 p-2`,
+        input_field_dd: whitemod_flag ? `  rounded font-form mb-2 w-full h-6  relative w-full` : `relative w-full text-white_text rounded font-form mb-2 w-full h-6`,
         input_label: whitemod_flag ? `font-form text-dim_black justify-self-start mt-2 text-xl` : `font-form text-white justify-self-start mt-2 text-xl`,
         input_form_div_left: `flex flex-col items-start rounded-xl  p-7 w-full`,
         input_form_div_left_child: `flex flex-col items-start rounded-xl  p-7 w-full border-pink border-solid border-2`,
@@ -39,9 +41,38 @@ const LockForm = () => {
         cmp_network: `px-11`,
         networkLogo: `max-h-8 px-4`,
         network_name: `font-form pl-2 `,
-        formValidationError: `mb-8 text-red h-6 text-xs text-left`
+        formValidationError: `mb-8 text-red h-6 text-xs text-left`,
+        select_dd: whitemod_flag ? `w-full p-2 text-dim_black bg-white_text rounded  outline-none appearance-none` : `w-full p-2 text-white bg-dim_black rounded  outline-none appearance-none `
     }
 
+    useEffect(() => {
+
+        //dropdown setup data
+        async function SetDropdown() {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const whiteList = [];
+            const len_whitelist = parseInt(await contract.getTotalWhitelist());
+
+            for (let i = 0; i < len_whitelist; i++) {
+                const tokenContractAddress = await contract.WhiteListTokens(i)
+                let Tokencontract = null;
+                if (provider.provider.networkVersion == 80001)
+                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                else if (provider.provider.networkVersion == 11155111)
+                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                const respo = await Tokencontract.json()
+                const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+                const name = await Tcontract.name()
+                const symbol = await Tcontract.symbol()
+                whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})` });
+            }
+            setData(whiteList)
+        }
+        SetDropdown()
+    }, [])
 
     async function SetupForm() {
 
@@ -49,37 +80,39 @@ const LockForm = () => {
         const duration = form.duration;
         const slice = form.slice;
         const cliff = form.cliff;
-        console.log(duration);
         const Beneficiaries = form.Beneficiaries;
         const addressoftoken = form.address_of_token
-        if (validateForm(form))
+        console.log(addressoftoken);
+        if (validateForm(form)) {
             console.log("yes valid")
-        else console.log("not valid");
-        try {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const wallet_add = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            let ABI_Token = null;
-            console.log(addressoftoken);
-            if (provider.provider.networkVersion == 80001)
-                ABI_Token = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${addressoftoken}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
-            else if (provider.provider.networkVersion == 11155111)
-                ABI_Token = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${addressoftoken}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
-            const response = await ABI_Token.json()
-            console.log(response);
-            const Tokencontract = new ethers.Contract(addressoftoken, response.result, signer);
-            const tx_allowance = await Tokencontract.allowance(wallet_add[0], contractAddress)
-            const allowance = parseInt(tx_allowance);
-            if (allowance < amount) {
-                const tx_approve = await Tokencontract.approve(contractAddress, amount)
 
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const wallet_add = await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+
+                let ABI_Token = null;
+                console.log(addressoftoken);
+                if (provider.provider.networkVersion == 80001)
+                    ABI_Token = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${addressoftoken}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                else if (provider.provider.networkVersion == 11155111)
+                    ABI_Token = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${addressoftoken}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                const response = await ABI_Token.json()
+                const Tokencontract = new ethers.Contract(addressoftoken, response.result, signer);
+                const tx_allowance = await Tokencontract.allowance(wallet_add[0], contractAddress)
+                const allowance = parseInt(tx_allowance);
+                if (allowance < amount) {
+                    const tx_approve = await Tokencontract.approve(contractAddress, amount)
+
+                }
+                await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
+                navigate("/currentVesting")
             }
-            await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
-            navigate("/currentVesting")
+            catch (e) {
+                console.log(e)
+            }
         }
-        catch (e) {
-            console.log(e)
-        }
+        else console.log("not valid");
     }
 
     function validateForm(form) {
@@ -140,6 +173,7 @@ const LockForm = () => {
                 console.log(e)
         }
     }
+
     return (
 
         <div className={style.div_inner}>
@@ -184,8 +218,24 @@ const LockForm = () => {
                                         setForm({ ...form, cliff: cliff_duration })
                                     }} />
                                     <span className={style.formValidationError}>{cliff_error}</span>
-                                    <p className={style.input_label}>Address Of Token</p>
-                                    <input type='text' placeholder='Enter address of token' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
+                                    <p className={style.input_label}>Token</p>
+                                    {/* <input type='text' placeholder='Enter address of token' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} /> */}
+                                    <div className={style.input_field_dd}>
+                                        <select className={style.select_dd} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }}>
+                                            <option>Select Token</option>
+                                            {whiteListedToken
+                                                &&
+                                                whiteListedToken.map((e, index) => {
+                                                    return (
+                                                        <>
+                                                            <option value={e.C_address}>{e.C_name}</option>
+                                                        </>
+                                                    )
+                                                })
+                                            }
+                                        </select>
+
+                                    </div>
                                     <span className={style.formValidationError}>{addressOfToken_error}</span>
                                 </div>
                             </div>
