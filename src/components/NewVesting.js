@@ -11,10 +11,10 @@ const NewVesting = () => {
     const { WalletConnection } = useContext(AppContext)
 
     const style = {
-        outer_div: `grid grid-cols-3 min-h-fit items-center  `,
-        div_inner: whitemod_flag ? `bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl ` : `bg-grey m-12 flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl `,
+        outer_div: `grid grid-cols-2 min-h-fit items-center  `,
+        div_inner: whitemod_flag ? `bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12  flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl ` : `bg-grey m-12 flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl `,
         div_inr_text: `font-vesting mt-6 text-3xl  text-pink`,
-        img_div: `rounded-2xl flex justify-center p-12 `,
+        img_div: `rounded-2xl flex justify-center m-4 p-12 h-full `,
         onlyImage: ``,
         alert_popup: `text-pink bg-grey h-48 w-96`
     }
@@ -36,12 +36,12 @@ const NewVesting = () => {
                             <CurrentVestingAnimation />
                         </div>
                     </NavLink>
-                    <NavLink to={'/whitelist'} className={style.div_inner}>
+                    {/* <NavLink to={'/whitelist'} className={style.div_inner}>
                         <p className={style.div_inr_text}>Whitelist</p>
                         <div className={style.img_div} >
                             <WhitelistAnimation />
                         </div>
-                    </NavLink>
+                    </NavLink> */}
                 </>
                 :
                 <Popup />

@@ -17,8 +17,8 @@ const CurrentVestingAnimation = () => {
     return (
         <>
             <Lottie options={defaultOptions}
-                height={300}
-                width={300} />
+                height={500}
+                width={400} />
         </>
     )
 }

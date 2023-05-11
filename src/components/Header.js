@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { NavLink } from "react-router-dom"
 import lock_logo from '../images/lock_logo.png'
 import dark_mode from '../images/dark-theme.svg'
@@ -10,6 +10,8 @@ const HeaderMain = () => {
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext);
     const [l_value, setLabel] = useState('Connect')
+    const [Flag, setFlag] = useState(0);
+
 
     async function connectWallet() {
         try {
@@ -18,19 +20,28 @@ const HeaderMain = () => {
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`
             localStorage.setItem("WalletAddress", Short_acc)
-            setWalletConnection(true);
-            WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
+            await setWalletConnection(true);
+            !WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
         } catch (error) {
             console.log("Failed to connect wallet: ");
         }
     };
     //set label on connect 
-    (!WalletConnection) ? connectWallet() : connectWallet()
+    useEffect(() => {
+
+        (!WalletConnection) ? connectWallet() : connectWallet()
+    }, [Flag])
 
     //set label on disconnect
     window.ethereum.on("accountsChanged", (accounts) => {
-        if (accounts.length === 0) {
+        if (accounts.length == 0) {
             setLabel("Connect")
+            setFlag(Flag + 1)
+            setWalletConnection(false)
+        }
+        else {
+            setLabel(accounts[0])
+            setFlag(Flag + 1)
         }
     })
 
@@ -66,10 +77,13 @@ const HeaderMain = () => {
         <div className={style.header}>
             <img className={style.logo} src={lock_logo} alt="logo" />
             <div>
-                <NavLink to={'/home'} style={navLinkStyles} >Home</NavLink>
-                <NavLink to={'/newVesting'} style={navLinkStyles} >New Vesting</NavLink>
-                <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Vesting</NavLink>
-                <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
+                {WalletConnection ? <>
+                    <NavLink to={'/home'} style={navLinkStyles} >Home</NavLink>
+                    <NavLink to={'/newVesting'} style={navLinkStyles} >New Vesting</NavLink>
+                    <NavLink to={'/currentVesting'} style={navLinkStyles} >Current Vesting</NavLink>
+                    <NavLink to={'/whitelist'} style={navLinkStyles} >Whitelist</NavLink>
+                </>
+                    : <></>}
             </div>
             <button className={style.wallet_connect} onClick={connectWallet}>{l_value}</button>
             <img src={dark_mode} className={style.dark_mode_logo} onClick={whitemod} alt="mode" />

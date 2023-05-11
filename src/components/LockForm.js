@@ -49,6 +49,7 @@ const LockForm = () => {
         const duration = form.duration;
         const slice = form.slice;
         const cliff = form.cliff;
+        console.log(duration);
         const Beneficiaries = form.Beneficiaries;
         const addressoftoken = form.address_of_token
         if (validateForm(form))
@@ -59,11 +60,13 @@ const LockForm = () => {
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             let ABI_Token = null;
+            console.log(addressoftoken);
             if (provider.provider.networkVersion == 80001)
                 ABI_Token = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${addressoftoken}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
             else if (provider.provider.networkVersion == 11155111)
                 ABI_Token = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${addressoftoken}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
             const response = await ABI_Token.json()
+            console.log(response);
             const Tokencontract = new ethers.Contract(addressoftoken, response.result, signer);
             const tx_allowance = await Tokencontract.allowance(wallet_add[0], contractAddress)
             const allowance = parseInt(tx_allowance);
@@ -104,6 +107,7 @@ const LockForm = () => {
             const acc = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
+            console.log(cliff);
             const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
             setLoading(true)
             await locked.wait()
