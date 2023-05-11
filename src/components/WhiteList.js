@@ -1,15 +1,25 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { TailSpin, Dna } from 'react-loader-spinner'
-import ABI from './ABI.json'
+import { Dna } from 'react-loader-spinner'
+import ABI from '../ABI/ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LandingLock from './LandingLock'
+import LandingLock from '../Animation/LandingLock'
 const ethers = require("ethers")
 
 const WhiteList = () => {
-    const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
+    const owner = "0x6051Dd0e7F5513b4bd73371780AEaa8bBe4130D4"
+    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const { whitemod_flag } = useContext(AppContext)
+    const [AdminFlag, setAdminFlag] = useState(false);
+    const [whiteListedToken, setData] = useState([])
+    const [Flag, setFlag] = useState(0);
+    const [loading, setLoading] = useState(false)
+    const [loading2, setLoading2] = useState(false)
+    const [w_add, setFormData] = useState()
+
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
         div_inner: !whitemod_flag ? `h-fit pb-6  w-full bg-grey m-12 rounded-xl` : `h-fit pb-6  w-full bg-light_pink m-12 rounded-xl`,
@@ -21,19 +31,8 @@ const WhiteList = () => {
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2 mr-10`,
         btn_add: `bg-green font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `,
         btn_remove: `bg-red font-vesting rounded-full px-6 mb-10 h-10 box-border mx-2 `
-
     }
-    const owner = "0x6051Dd0e7F5513b4bd73371780AEaa8bBe4130D4"
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
-    const [AdminFlag, setAdminFlag] = useState(false);
-    const [whiteListedToken, setData] = useState([])
-    const [Flag, setFlag] = useState(0);
-    const [loading, setLoading] = useState(false)
 
-    const [loading2, setLoading2] = useState(false)
-    const [w_add, setFormData] = useState()
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const { WalletConnection, setWalletConnection } = useContext(AppContext)
     useEffect(() => {
         const getVesting = async () => {
             setLoading(true)
@@ -41,26 +40,25 @@ const WhiteList = () => {
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
-
-            (owner.toLowerCase() == wallet_add[0].toLowerCase()) ? setAdminFlag(true) : setAdminFlag(false)
-
+            (owner.toLowerCase() === wallet_add[0].toLowerCase()) ? setAdminFlag(true) : setAdminFlag(false)
             const whiteList = [];
             const len_whitelist = parseInt(await contract.getTotalWhitelist());
 
             for (let i = 0; i < len_whitelist; i++) {
-                const tempContractAddress = await contract.WhiteListTokens(i)
-                let deme = null;
-                if (provider.provider.networkVersion == 80001)
-                    deme = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tempContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
-                else if (provider.provider.networkVersion == 11155111)
-                    deme = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tempContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
-                const respo = await deme.json()
-                const Tcontract = new ethers.Contract(tempContractAddress, respo.result, signer);
+                const tokenContractAddress = await contract.WhiteListTokens(i)
+                let Tokencontract = null;
+                if (provider.provider.networkVersion === 80001)
+                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                else if (provider.provider.networkVersion === 11155111)
+                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                const respo = await Tokencontract.json()
+                const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
                 const name = await Tcontract.name()
                 const symbol = await Tcontract.symbol()
-                const status = await contract.CheckWhitelist(tempContractAddress)
-                whiteList.push({ C_address: tempContractAddress, C_name: `${name} (${symbol})`, current: status });
+                const status = await contract.CheckWhitelist(tokenContractAddress)
+                whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})`, current: status });
             }
+
             setData(whiteList)
             setLoading(false)
         }
@@ -68,19 +66,20 @@ const WhiteList = () => {
 
 
     }, [Flag])
+
     window.addEventListener('load', () => {
         setFlag(Flag + 1);
     });
+
     window.ethereum.on("accountsChanged", (accounts) => {
         setFlag(Flag + 1)
         if (accounts.length === 0) {
-
             setWalletConnection(false)
         }
     })
+
     const addToWhitelist = async () => {
         setLoading(true)
-
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
@@ -120,6 +119,7 @@ const WhiteList = () => {
                 console.log(e)
         }
     }
+
     const removeFromWhitelist = async () => {
         setLoading(true)
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -135,7 +135,11 @@ const WhiteList = () => {
     return (
         <div className={style.outer_div}>
             {WalletConnection
-                ? (loading2 ? <LandingLock /> :
+                ?
+                (loading2
+                    ?
+                    <LandingLock />
+                    :
                     <div className={style.div_inner}>
                         <div className={style.title_div}>
                             <p className={style.title_text}>Whitelisted Token</p>
@@ -174,11 +178,10 @@ const WhiteList = () => {
                                         </div>)
                                 })
                         }
-
-
-
                     </div>)
-                : <><Popup /></>}
+                :
+                <Popup />
+            }
         </div>
     )
 }

@@ -1,15 +1,29 @@
 import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ABI from './ABI.json'
+import ABI from '../ABI/ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LandingLock from './LandingLock'
+import LandingLock from '../Animation/LandingLock'
+import { validateForm } from '../util/util'
 const ethers = require("ethers")
 
 const LockForm = () => {
+    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const [amount_error, setAmountError] = useState()
+    const [slice_error, setSliceError] = useState('')
+    const [beneficiaries_error, setBeneficiariesError] = useState('')
+    const [cliff_error, setCliffError] = useState('')
+    const [duration_error, setDurationError] = useState('')
+    const [addressOfToken_error, setAddressTokenError] = useState('')
+    const [form, setForm] = useState({})
+    const [inputValue, setInputValue] = useState('');
+    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate();
+
     const style = {
         div_inner: whitemod_flag ? `min-h-fit min-w-fit bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 rounded-xl  ` : `min-h-fit min-w-fit bg-grey m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
@@ -28,18 +42,6 @@ const LockForm = () => {
         formValidationError: `mb-8 text-red h-6 text-xs text-left`
     }
 
-    const [amount_error, setAmountError] = useState()
-    const [slice_error, setSliceError] = useState('')
-    const [beneficiaries_error, setBeneficiariesError] = useState('')
-    const [cliff_error, setCliffError] = useState('')
-    const [duration_error, setDurationError] = useState('')
-    const [addressOfToken_error, setAddressTokenError] = useState('')
-    const [form, setForm] = useState({})
-    const [inputValue, setInputValue] = useState('');
-    const [loading, setLoading] = useState(false)
-    const navigate = useNavigate();
-    const { WalletConnection, setWalletConnection } = useContext(AppContext)
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
 
     async function SetupForm() {
 
@@ -61,15 +63,14 @@ const LockForm = () => {
                 ABI_Token = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${addressoftoken}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
             else if (provider.provider.networkVersion == 11155111)
                 ABI_Token = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${addressoftoken}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
-            const respo = await ABI_Token.json()
-            const Tokencontract = new ethers.Contract(addressoftoken, respo.result, signer);
+            const response = await ABI_Token.json()
+            const Tokencontract = new ethers.Contract(addressoftoken, response.result, signer);
             const tx_allowance = await Tokencontract.allowance(wallet_add[0], contractAddress)
             const allowance = parseInt(tx_allowance);
             if (allowance < amount) {
                 const tx_approve = await Tokencontract.approve(contractAddress, amount)
 
             }
-
             await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
             navigate("/currentVesting")
         }
@@ -77,6 +78,7 @@ const LockForm = () => {
             console.log(e)
         }
     }
+
     function validateForm(form) {
         const num_regex = /^[0-9]+$/
         const beneficiaries_regex = /^0x[a-fA-F0-9]{40}$/
@@ -98,7 +100,6 @@ const LockForm = () => {
     }
     const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
         try {
-
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const acc = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
@@ -139,51 +140,60 @@ const LockForm = () => {
 
         <div className={style.div_inner}>
             {WalletConnection
-                ? (loading ? <LandingLock /> : <>
-                    <div className={style.title_div}>
-                        <p className={style.title_text}>New Vesting</p>
-                    </div>
-                    <div className={style.form_div}>
-                        <div className={style.input_form_div}>
-                            <div className={style.input_form_div_left}>
-                                <p className={style.input_label}>Amount</p>
-                                <input type='number' placeholder='Enter amount here' required className={style.input_field} onChange={(event) => { setForm({ ...form, amount: event.target.value }) }} />
-                                <span className={style.formValidationError}>{amount_error}</span>
-                                <p className={style.input_label}>Slice Period</p>
-                                <input type='number' placeholder='Enter slice period here' className={style.input_field} onChange={(event) => { setForm({ ...form, slice: event.target.value }) }} />
-                                <span className={style.formValidationError}>{slice_error}</span>
-                                <p className={style.input_label}>Beneficiaries</p>
-                                <input type='text' placeholder='Enter Beneficiaries address here' className={style.input_field} onChange={(event) => { setForm({ ...form, Beneficiaries: event.target.value }) }} />
-                                <span className={style.formValidationError}>{beneficiaries_error}</span>
-                            </div>
-                            <div className={style.input_form_div_left}>
-                                <p className={style.input_label}>Duration</p>
+                ?
+                (loading
+                    ?
+                    <LandingLock />
+                    :
+                    <>
+                        <div className={style.title_div}>
+                            <p className={style.title_text}>New Vesting</p>
+                        </div>
+                        <div className={style.form_div}>
+                            <div className={style.input_form_div}>
+                                <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Amount</p>
+                                    <input type='number' placeholder='Enter amount here' required className={style.input_field} onChange={(event) => { setForm({ ...form, amount: event.target.value }) }} />
+                                    <span className={style.formValidationError}>{amount_error}</span>
+                                    <p className={style.input_label}>Slice Period</p>
+                                    <input type='number' placeholder='Enter slice period here' className={style.input_field} onChange={(event) => { setForm({ ...form, slice: event.target.value }) }} />
+                                    <span className={style.formValidationError}>{slice_error}</span>
+                                    <p className={style.input_label}>Beneficiaries</p>
+                                    <input type='text' placeholder='Enter Beneficiaries address here' className={style.input_field} onChange={(event) => { setForm({ ...form, Beneficiaries: event.target.value }) }} />
+                                    <span className={style.formValidationError}>{beneficiaries_error}</span>
+                                </div>
 
-                                <input type="datetime-local" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                                    const input_duration = (timestamp - currentTimestamp);
-                                    setForm({ ...form, duration: input_duration })
-                                }} />
-                                <span className={style.formValidationError}>{duration_error}</span>
-                                <p className={style.input_label}>Cliff</p>
-                                <input type="datetime-local" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                                    const cliff_duration = (timestamp - currentTimestamp);
-                                    setForm({ ...form, cliff: cliff_duration })
-                                }} />
-                                <span className={style.formValidationError}>{cliff_error}</span>
-                                <p className={style.input_label}>Address Of Token</p>
-                                <input type='text' placeholder='Enter address of token' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
-                                <span className={style.formValidationError}>{addressOfToken_error}</span>
+                                <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Duration</p>
+                                    <input type="datetime-local" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
+                                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                                        const input_duration = (timestamp - currentTimestamp);
+                                        setForm({ ...form, duration: input_duration })
+                                    }} />
+                                    <span className={style.formValidationError}>{duration_error}</span>
+                                    <p className={style.input_label}>Cliff</p>
+                                    <input type="datetime-local" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
+                                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                                        const cliff_duration = (timestamp - currentTimestamp);
+                                        setForm({ ...form, cliff: cliff_duration })
+                                    }} />
+                                    <span className={style.formValidationError}>{cliff_error}</span>
+                                    <p className={style.input_label}>Address Of Token</p>
+                                    <input type='text' placeholder='Enter address of token' className={style.input_field} onChange={(event) => { setForm({ ...form, address_of_token: event.target.value }) }} />
+                                    <span className={style.formValidationError}>{addressOfToken_error}</span>
+                                </div>
                             </div>
                         </div>
-
-                    </div>
-                    <div>
-                        <button className={style.btn_lock} onClick={SetupForm}>Lock Tocken</button>
-                    </div></>) : <> <Popup /></>}
+                        <div>
+                            <button className={style.btn_lock} onClick={SetupForm}>Lock Tocken</button>
+                        </div>
+                    </>
+                )
+                :
+                <Popup />
+            }
         </div>
     )
 }

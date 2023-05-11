@@ -1,17 +1,25 @@
 // import React, { useState, createContext, useContext, useEffect } from 'react'
 import { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import ABI from './ABI.json'
+import ABI from '../ABI/ABI.json'
 import { AppContext } from '../App'
 import Popup from './Popup';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import LandingLock from './LandingLock';
+import LandingLock from '../Animation/LandingLock';
 
 const ethers = require("ethers")
 const VestingDetail = () => {
-    const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
+    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const { whitemod_flag } = useContext(AppContext)
+    const { vestingId } = useParams();
     const [btn_disable, setDisable] = useState(false)
+    const [data, setVestingData] = useState()
+    const [loading, setLoading] = useState(false)
+    const [withdrawable, setWithdrawableToken] = useState(0)
+    const [Flag, setFlag] = useState(0);
+
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
         div_inner: !whitemod_flag ? `h-fit pb-10 w-full bg-grey m-12 rounded-xl  ` : `h-fit pb-10 w-full bg-light_pink m-12 rounded-xl  `,
@@ -31,15 +39,7 @@ const VestingDetail = () => {
         data: whitemod_flag ? `text-dim_black pb-4` : `text-white_text pb-4`,
         data_green: `text-green pb-4`
     }
-    const { vestingId } = useParams();
-    const [data, setVestingData] = useState()
-    const [loading, setLoading] = useState(false)
-    const [withdrawable, setWithdrawableToken] = useState(0)
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
-    const { WalletConnection, setWalletConnection } = useContext(AppContext)
-    const [Flag, setFlag] = useState(0);
-    // const data = JSON.parse(localStorage.getItem("data"))
-    // console.log(data);
+
     useEffect(() => {
         const getVestingData = async () => {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -67,6 +67,7 @@ const VestingDetail = () => {
         else
             setDisable(false)
     }
+
     const withdraw = async () => {
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -106,21 +107,26 @@ const VestingDetail = () => {
         }
 
     }
+
     window.addEventListener('load', () => {
         setFlag(Flag + 1);
     });
+
     window.ethereum.on("accountsChanged", (accounts) => {
         setFlag(Flag + 1)
         if (accounts.length === 0) {
-
             setWalletConnection(false)
         }
     })
 
     return (
         <div className={style.outer_div}>
-            {WalletConnection ?
-                (loading ? <LandingLock /> :
+            {WalletConnection
+                ?
+                (loading
+                    ?
+                    <LandingLock />
+                    :
                     <div className={style.div_inner}>
                         <div className={style.title_div}>
                             <p className={style.title_text}>Vesting Detail</p>
@@ -160,7 +166,11 @@ const VestingDetail = () => {
                             <button className={style.btn_withdraw} onClick={calculate_withdrawable}>Calculate</button>
                             <button className={style.btn_withdraw} disabled={btn_disable} onClick={withdraw}>Withdraw</button>
                         </div>
-                    </div>) : <Popup />}
+                    </div>
+                )
+                :
+                <Popup />
+            }
         </div>
     )
 }

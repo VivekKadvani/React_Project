@@ -1,16 +1,15 @@
 import React, { useContext, useState } from 'react'
-import new_img from '../images/new.png'
-import current_img from '../images/current.png'
-import whitelist_img from '../images/whitelist.png'
 import { AppContext } from '../App'
 import { NavLink } from "react-router-dom"
 import Popup from './Popup'
-import VestingAnimation from './VestingAnimation'
-import CurrentVestingAnimation from './CurrentVestingAnimation'
-import WhitelistAnimation from './WhitelistAnimation'
+import VestingAnimation from '../Animation/VestingAnimation'
+import CurrentVestingAnimation from '../Animation/CurrentVestingAnimation'
+import WhitelistAnimation from '../Animation/WhitelistAnimation'
 
 const NewVesting = () => {
-    const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
+    const { whitemod_flag } = useContext(AppContext)
+    const { WalletConnection } = useContext(AppContext)
+
     const style = {
         outer_div: `grid grid-cols-3 min-h-fit items-center  `,
         div_inner: whitemod_flag ? `bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl ` : `bg-grey m-12 flex flex-col justify-center rounded-2xl hover:drop-shadow-3xl `,
@@ -19,21 +18,17 @@ const NewVesting = () => {
         onlyImage: ``,
         alert_popup: `text-pink bg-grey h-48 w-96`
     }
-    const { WalletConnection, setWalletConnection } = useContext(AppContext)
 
     return (
-
-
         <div className={style.outer_div} >
             {WalletConnection
-                ? <>
+                ?
+                <>
                     <NavLink to={'/lockToken'} className={style.div_inner}>
-
                         <p className={style.div_inr_text}>New Vesting</p>
                         <div className={style.img_div} >
                             <VestingAnimation />
                         </div>
-
                     </NavLink>
                     <NavLink to={'/currentVesting'} className={style.div_inner}>
                         <p className={style.div_inr_text}>Current Vesting</p>
@@ -46,14 +41,12 @@ const NewVesting = () => {
                         <div className={style.img_div} >
                             <WhitelistAnimation />
                         </div>
-                    </NavLink></>
-                :
-                <>
-                    <Popup />
+                    </NavLink>
                 </>
+                :
+                <Popup />
             }
         </div >
-
     )
 }
 
