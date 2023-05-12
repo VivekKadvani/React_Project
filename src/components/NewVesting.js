@@ -7,6 +7,7 @@ import CurrentVestingAnimation from '../Animation/CurrentVestingAnimation'
 import WhitelistAnimation from '../Animation/WhitelistAnimation'
 
 const NewVesting = () => {
+
     const { whitemod_flag } = useContext(AppContext)
     const { WalletConnection } = useContext(AppContext)
 

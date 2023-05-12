@@ -38,13 +38,16 @@ contract VestingContract {
     }
 
     function addWhitelist(address _add) public onlyOwner {
-        require(CheckWhitelist[_add] !=true ,"Token already added to whitelist");
+        require(
+            CheckWhitelist[_add] != true,
+            "Token already added to whitelist"
+        );
         CheckWhitelist[_add] = true;
         WhiteListTokens.push(_add);
     }
 
     function removeWhitelist(address _add) public onlyOwner {
-        require(CheckWhitelist[_add] !=false ,"Token is not in whitelist");
+        require(CheckWhitelist[_add] != false, "Token is not in whitelist");
         CheckWhitelist[_add] = false;
         delete CheckWhitelist[_add];
     }
