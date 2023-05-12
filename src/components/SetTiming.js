@@ -31,79 +31,93 @@ const SetTiming = ({ half_form_send }) => {
         input_label: whitemod_flag ? `font-half_form text-dim_black justify-self-start mt-2 text-xl` : `font-half_form text-white justify-self-start mt-2 text-xl`,
         input_half_form_div_left: `flex flex-col items-start rounded-xl  p-7 w-full`,
         input_half_form_div_left_child: `flex flex-col items-start rounded-xl  p-7 w-full border-pink border-solid border-2`,
-        network_div: `rounded-xl bg-white_text h-12 w-full  mx-9 flex items-center pl-4`,
-        cmp_network: `px-11`,
-        networkLogo: `max-h-8 px-4`,
-        network_name: `font-half_form pl-2 `,
         half_formValidationError: `mb-8 text-red h-6 text-xs text-left`,
-        select_dd: whitemod_flag ? `w-full p-2 text-dim_black bg-white_text rounded  outline-none appearance-none` : `w-full p-2 text-white bg-dim_black rounded  outline-none appearance-none `
     }
-    function printD() {
+    function SetupForm() {
 
-        console.log(half_form);
-        // console.log(half_form.Start_time);
-        // console.log(half_form.end_time);
-        // console.log("duration : ", half_form.end_time - half_form.Start_time)
+        if (validateForm(half_form)) {
+
+        }
+        else {
+
+        }
     }
+    function validateForm(form) {
+
+        // const amount_result = (num_regex.test(form.amount)) && (form.amount > 0);
+        // (!amount_result) ? setAmountError(' * Amount Field contain only digit 0-9, no any other symbol and character. It must be greater than 0(zero)') : setAmountError('')
+        // const slice_result = (num_regex.test(form.slice)) && (form.slice > 0);
+        // (!slice_result) ? setSliceError('* Slice Period only contains digit 0-9. It must be greater than 0(Zero)') : setSliceError('')
+        // const beneficiearies_result = beneficiaries_regex.test(form.Beneficiaries);
+        // (!beneficiearies_result) ? setBeneficiariesError('*  Enter a valid address of Beneficiaries.') : setBeneficiariesError('')
+        // const TokenAddressError = (form.address_of_token == undefined);
+        // (TokenAddressError) ? setAddressTokenError(' * please select token') : setAddressTokenError('');
+        // return (amount_result && slice_result && beneficiearies_result && (!TokenAddressError)
+        // )
+    }
+
+
     return (
-        <div className={style.input_half_form_div}>
-            <div className={style.input_half_form_div_left}>
-                <p className={style.input_label}>Start Date</p>
-                <input type="date" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, Start_time: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
-                <p className={style.input_label}>Cliff Date</p>
-                <input type="date" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, cliff: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
-                <p className={style.input_label}>End Date</p>
-                <input type="date" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, end_time: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
-            </div>
+        <>
+            <div className={style.input_half_form_div}>
+                <div className={style.input_half_form_div_left}>
+                    <p className={style.input_label}>Start Date</p>
+                    <input type="date" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, Start_date: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                    <p className={style.input_label}>Cliff Date</p>
+                    <input type="date" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, cliff_date: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                    <p className={style.input_label}>End Date</p>
+                    <input type="date" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, end_date: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                </div>
 
-            <div className={style.input_half_form_div_left}>
-                <p className={style.input_label}>Start Time</p>
-                <input type="time" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, cliff: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
-                <p className={style.input_label}>Cliff Time</p>
-                <input type="time" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, cliff: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
-                <p className={style.input_label}>End Time</p>
-                <input type="time" className={style.input_field} id="birthdaytime" name="birthdaytime" onChange={(event) => {
-                    const currentTimestamp = Math.floor(Date.now() / 1000);
-                    const timestamp = new Date(event.target.value).getTime() / 1000;
-                    const input_duration = (timestamp - currentTimestamp);
-                    sethalf_form({ ...half_form, cliff: input_duration })
-                }} />
-                <span className={style.half_formValidationError}>{duration_error}</span>
+                <div className={style.input_half_form_div_left}>
+                    <p className={style.input_label}>Start Time</p>
+                    <input type="time" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, start_time: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                    <p className={style.input_label}>Cliff Time</p>
+                    <input type="time" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, cliff_time: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                    <p className={style.input_label}>End Time</p>
+                    <input type="time" className={style.input_field} onChange={(event) => {
+                        const currentTimestamp = Math.floor(Date.now() / 1000);
+                        const timestamp = new Date(event.target.value).getTime() / 1000;
+                        const input_duration = (timestamp - currentTimestamp);
+                        sethalf_form({ ...half_form, end_time: input_duration })
+                    }} />
+                    <span className={style.half_formValidationError}>{duration_error}</span>
+                </div>
             </div>
             <div>
-                <button className={style.btn_lock} onClick={printD}>Next</button>
+                <button className={style.btn_lock} onClick={SetupForm}>Next</button>
             </div>
-        </div>
+        </>
     )
 }
 
