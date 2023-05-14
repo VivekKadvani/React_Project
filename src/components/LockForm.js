@@ -83,8 +83,9 @@ const LockForm = () => {
                 const response = await ABI_Token.json()
                 const Tokencontract = new ethers.Contract(addressoftoken, response.result, signer);
                 const decimalOfToken = await Tokencontract.decimals();
+                const name = await Tokencontract.name();
 
-                setForm({ ...form, decimalOfToken: decimalOfToken })
+                setForm({ ...form, decimalOfToken: decimalOfToken, nameOfToken: name })
                 setPageComponent(true)
             }
             catch (e) {

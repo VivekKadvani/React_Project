@@ -1,50 +1,146 @@
-const [cliff_error, setCliffError] = useState('')
-const [duration_error, setDurationError] = useState('')
-const duration = form.duration;
-const lockToken = async (amount, duration, slice, cliff, Beneficiaries, addressoftoken) => {
-    try {
+import { useEffect, useState, useContext } from 'react';
+import { useParams } from 'react-router-dom';
+import ABI from '../ABI/ABI.json'
+import { AppContext } from '../App'
+import Popup from './Popup';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LandingLock from '../Animation/LandingLock';
+const ConfirmLock = ({ data }) => {
+    const { whitemod_flag } = useContext(AppContext)
+    const [total_duration, setTotalDuration] = useState('')
+    const [start_time_f, setStartTimeF] = useState('')
+    const [cliff_time_f, setCliffimeF] = useState('')
+    const [end_time_f, setEndtimeF] = useState('')
+    const [slice_period_f, setSlicePeriodF] = useState('')
+
+    const style = {
+        outer_div: `flex min-h-fit items-center px-24`,
+        div_inner: !whitemod_flag ? `h-fit pb-10 w-full bg-grey m-12 rounded-xl  ` : `h-fit pb-10 w-full bg-light_pink m-12 rounded-xl  `,
+        title_text: `font-vesting text-pink text-3xl justify-self-start`,
+        title_div: `flex m-6`,
+        form_div: whitemod_flag ? `m-11 bg-white_text shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] rounded-xl` : `m-11 bg-dim_black  shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] rounded-xl`,
+        input_form_div: `flex justify-center `,
+        btn_withdraw: `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10 mb-6 `,
+        input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2`,
+        input_label: whitemod_flag ? `font-form text-dim_black justify-self-start mt-4 text-xl` : `font-form text-white justify-self-start mt-4 text-xl`,
+        input_label_green: `font-form text-green justify-self-start mt-4 text-xl`,
+        input_form_div_left: `mb-0 pb-0 mt-4 pt-0 flex flex-col items-start rounded-xl m-9 p-11 w-full`,
+        network_div: `rounded-xl bg-white_text h-12 w-full mx-9 flex items-center pl-4`,
+        cmp_network: `px-11`,
+        networkLogo: `h-8 px-4`,
+        network_name: `font-form pl-2`,
+        data: whitemod_flag ? `text-dim_black pb-4` : `text-white_text pb-4`,
+        data_green: `text-green pb-4`
+    }
+
+    useEffect(() => {
+        const duration = calculateDuration(data.Start_timestamp, data.end_timestamp)
+
+        console.log(duration);
+        setTotalDuration(duration)
+        setStartTimeF(formatTimestamp(data.Start_timestamp))
+        setEndtimeF(formatTimestamp(data.end_timestamp))
+        setCliffimeF(formatTimestamp(data.cliff_timestamp))
+        setSlicePeriodF(calculateDuration(Date.now(), Date.now() + data.slice))
+    }, [])
+    function calculateDuration(startTimestamp, endTimestamp) {
+        const start = new Date(startTimestamp * 1000); // Convert to milliseconds
+        const end = new Date(endTimestamp * 1000); // Convert to milliseconds
+
+        const durationInMilliseconds = end - start;
+
+        // Calculate individual units (days, hours, minutes, seconds)
+        const seconds = Math.floor(durationInMilliseconds / 1000) % 60;
+        const minutes = Math.floor(durationInMilliseconds / 1000 / 60) % 60;
+        const hours = Math.floor(durationInMilliseconds / 1000 / 60 / 60) % 24;
+        const days = Math.floor(durationInMilliseconds / 1000 / 60 / 60 / 24);
+
+        // Format the duration as a string
+        const formattedDuration = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+
+        return formattedDuration;
+    }
+
+    function formatTimestamp(unixTimestamp) {
+        const currentTimestamp = Date.now(); // Current timestamp in milliseconds
+        const targetTimestamp = unixTimestamp * 1000; // Convert Unix timestamp to milliseconds
+
+        const resultTimestamp = currentTimestamp + targetTimestamp;
+        const dateObject = new Date(resultTimestamp);
+
+        const day = String(dateObject.getDate()).padStart(2, '0');
+        const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+        const year = String(dateObject.getFullYear());
+        const hours = String(dateObject.getHours()).padStart(2, '0');
+        const minutes = String(dateObject.getMinutes()).padStart(2, '0');
+        const seconds = String(dateObject.getSeconds()).padStart(2, '0');
+
+        const formattedDate = `${day}-${month}-${year}`;
+        const formattedTime = `${hours}:${minutes}:${seconds}`;
+
+        return `${formattedDate} ${formattedTime}`;
+    }
+
+    async function ConfirmLock() {
+        const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const acc = await provider.send("eth_requestAccounts", []);
+        const wallet_add = await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const locked = await contract.lock(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
-        setLoading(true)
-        await locked.wait()
-        setLoading(false)
-        toast.success('Transaction successful', {
-            position: "top-center",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: whitemod_flag ? "light" : "dark",
-        })
+        let amount = data.amount * decimalOfToken;
+        let duration = data.end_timestamp - data.Start_timestamp;
+        let slicePeriod = data.slice;
+        let cliff = data.cliff_timestamp;
+        let beneficiaries = data.Beneficiaries;
+        let addressOfToken = data.address_of_token;
+        const lock = await contract.lock(amount, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+
+
     }
-    catch (e) {
-        ((e.toString()).includes('user rejected transaction'))
-            ?
-            toast.error('User Reject Transaction', {
-                position: "top-center",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: whitemod_flag ? "light" : "dark",
-            })
-            :
-            console.log(e)
+
+    function CancelLock() {
+
     }
+    return (
+        <>
+
+            <div className={style.form_div}>
+                <div className={style.input_form_div}>
+                    <div className={style.input_form_div_left}>
+                        <p className={style.input_label}>Amount</p>
+                        <p className={style.data}>{data.amount}</p>
+                        <p className={style.input_label}>Start Time</p>
+                        <p className={style.data}>{start_time_f}</p>
+                        <p className={style.input_label}>Cliff</p>
+                        <p className={style.data}>{cliff_time_f}</p>
+                        <p className={style.input_label}>End Time</p>
+                        <p className={style.data}>{end_time_f}</p>
+                        <p className={style.input_label}>Slice Period</p>
+                        <p className={style.data}>{slice_period_f}</p>
+                    </div>
+                    <div className={style.input_form_div_left}>
+
+                        <p className={style.input_label}>Token</p>
+                        <p className={style.data}>{data.nameOfToken}</p>
+                        <p className={style.input_label}>Address Of Token</p>
+                        <p className={style.data}>{data.address_of_token}</p>
+                        <p className={style.input_label}>Beneficiaries</p>
+                        <p className={style.data}>{data.Beneficiaries}</p>
+
+                        <p className={style.input_label}>Total Duration</p>
+                        <p className={style.data}>{total_duration}</p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <button className={style.btn_withdraw} onClick={CancelLock} >Cancel</button>
+                <button className={style.btn_withdraw} onClick={ConfirmLock} >Confirm</button>
+            </div>
+        </>
+
+
+
+    )
 }
-
-    // const tx_allowance = await Tokencontract.allowance(wallet_add[0], contractAddress)
-                // const allowance = parseInt(tx_allowance);
-                // if (allowance < amount) {
-                //     const tx_approve = await Tokencontract.approve(contractAddress, amount)
-
-                // }
-                // await lockToken(amount, duration, slice, cliff, Beneficiaries, addressoftoken);
-                // navigate("/currentVesting")
+export default ConfirmLock
