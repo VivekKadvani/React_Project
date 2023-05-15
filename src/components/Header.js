@@ -21,9 +21,9 @@ const HeaderMain = () => {
             const Short_acc = `${start}...${end}`
             localStorage.setItem("WalletAddress", Short_acc)
             await setWalletConnection(true);
-            !WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
+            WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
         } catch (error) {
-            console.log("Failed to connect wallet: ");
+
         }
     };
     //set label on connect 
@@ -38,9 +38,11 @@ const HeaderMain = () => {
             setLabel("Connect")
             setFlag(Flag + 1)
             setWalletConnection(false)
+
         }
         else {
             setLabel(accounts[0])
+            setWalletConnection(true)
             setFlag(Flag + 1)
         }
     })

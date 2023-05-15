@@ -9,7 +9,7 @@ import SetTiming from './SetTiming'
 const ethers = require("ethers")
 
 const LockForm = () => {
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const [amount_error, setAmountError] = useState()
@@ -108,10 +108,40 @@ const LockForm = () => {
         (!beneficiearies_result) ? setBeneficiariesError('*  Enter a valid address of Beneficiaries.') : setBeneficiariesError('')
         const TokenAddressError = (form.address_of_token == undefined);
         (TokenAddressError) ? setAddressTokenError(' * please select token') : setAddressTokenError('');
-        return (amount_result && slice_result && beneficiearies_result && (!TokenAddressError)
-        )
-    }
+        if (!amount_result) fireToast('error', 'Please Enter Valid Amount');
+        if (!slice_result) fireToast('error', 'Please Enter Valid Slice');
+        if (!beneficiearies_result) fireToast('error', 'Please enter valid beneficieries address');
+        if (TokenAddressError) fireToast('error', 'Please Select Token From List')
+        return (amount_result && slice_result && beneficiearies_result && (!TokenAddressError));
 
+    }
+    function fireToast(type, msg) {
+        if (type == 'error') {
+
+            toast.error(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'success') {
+            toast.success(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+    }
     return (
 
         <div className={style.div_inner}>
@@ -156,7 +186,7 @@ const LockForm = () => {
                                             <p className={style.input_label}>Slice Period</p>
                                             <div className={whitemod_flag ? 'w-full flex h-10 bg-white_text rounded' : 'w-full flex h-10 bg-dim_black rounded'}>
                                                 <select className={style.select_dd + `w-1/4 bg-transparent`} onChange={(event) => { setForm({ ...form, slice_unit: event.target.value }) }}>
-                                                    <option>-- per -- </option>
+                                                    <option value={1}>-- per -- </option>
                                                     <option value={1}>Per Second</option>
                                                     <option value={60}>Per Minute</option>
                                                     <option value={3600} >Per Hour</option>

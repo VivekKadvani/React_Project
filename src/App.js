@@ -18,6 +18,7 @@ function App() {
   const [WalletConnection, setWalletConnection] = useState(false)
   const [whitemod_flag, setWhitemodflag] = useState(false)
 
+
   return (
     <AppContext.Provider value={{ WalletConnection, setWalletConnection, whitemod_flag, setWhitemodflag }}>
       <ToastContainer />

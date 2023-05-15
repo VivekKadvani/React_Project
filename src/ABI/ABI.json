@@ -196,18 +196,23 @@
             },
             {
                 "internalType": "uint256",
+                "name": "_start",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
                 "name": "_duration",
                 "type": "uint256"
             },
             {
-                "internalType": "uint8",
+                "internalType": "uint256",
                 "name": "_slice_period",
-                "type": "uint8"
+                "type": "uint256"
             },
             {
-                "internalType": "uint8",
+                "internalType": "uint256",
                 "name": "_cliff",
-                "type": "uint8"
+                "type": "uint256"
             },
             {
                 "internalType": "address",
@@ -216,7 +221,7 @@
             },
             {
                 "internalType": "address",
-                "name": "addressOfToken",
+                "name": "_addressOfToken",
                 "type": "address"
             }
         ],
@@ -268,48 +273,8 @@
         "outputs": [
             {
                 "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "start",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "duration",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "slice_period",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cliff",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "recive_on_interval",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
                 "name": "VestingId",
                 "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "beneficiaries",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "TokenAddress",
-                "type": "address"
             },
             {
                 "internalType": "bool",
@@ -318,8 +283,55 @@
             },
             {
                 "internalType": "uint256",
-                "name": "temp",
+                "name": "claimed",
                 "type": "uint256"
+            },
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "amount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "start",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "duration",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "slice_period",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "cliff",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "recive_on_interval",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "beneficiaries",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "TokenAddress",
+                        "type": "address"
+                    }
+                ],
+                "internalType": "struct VestingContract.VestingParams",
+                "name": "params",
+                "type": "tuple"
             }
         ],
         "stateMutability": "view",

@@ -9,8 +9,8 @@ import LandingLock from '../Animation/LandingLock'
 const ethers = require("ethers")
 
 const WhiteList = () => {
-    const owner = "0x6051Dd0e7F5513b4bd73371780AEaa8bBe4130D4"
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const owner = "0x36918aF185cC830E225b0726426686a626fA158e"
+    const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const { whitemod_flag } = useContext(AppContext)
     const [AdminFlag, setAdminFlag] = useState(false);
@@ -78,7 +78,6 @@ const WhiteList = () => {
     })
 
     const addToWhitelist = async () => {
-        setLoading(true)
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
@@ -98,7 +97,6 @@ const WhiteList = () => {
                 progress: undefined,
                 theme: whitemod_flag ? "light" : "dark",
             })
-            setLoading(false)
             setFlag(Flag + 1)
         }
         catch (e) {
@@ -115,7 +113,7 @@ const WhiteList = () => {
                     theme: whitemod_flag ? "light" : "dark",
                 })
                 :
-                console.log(e)
+                console.log(e)//toast
         }
     }
 
@@ -172,7 +170,7 @@ const WhiteList = () => {
                                         <div className={style.vesting_data} key={index}>
                                             <div>{index}</div>
                                             <div>{e.C_name}</div>
-                                            <div class='col-span-2 '>{e.C_address}</div>
+                                            <div className='col-span-2 '>{e.C_address}</div>
                                         </div>)
                                 })
                         }

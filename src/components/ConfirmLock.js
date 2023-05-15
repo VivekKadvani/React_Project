@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ABI from '../ABI/ABI.json'
 import { AppContext } from '../App'
 import Popup from './Popup';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingLock from '../Animation/LandingLock';
+const ethers = require("ethers")
 const ConfirmLock = ({ data }) => {
     const { whitemod_flag } = useContext(AppContext)
     const [total_duration, setTotalDuration] = useState('')
@@ -13,6 +14,8 @@ const ConfirmLock = ({ data }) => {
     const [cliff_time_f, setCliffimeF] = useState('')
     const [end_time_f, setEndtimeF] = useState('')
     const [slice_period_f, setSlicePeriodF] = useState('')
+    const [tnRunning, setTnRunnig] = useState(false)
+    const navigate = useNavigate();
 
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -83,63 +86,147 @@ const ConfirmLock = ({ data }) => {
     }
 
     async function ConfirmLock() {
-        const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const wallet_add = await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        let amount = data.amount * decimalOfToken;
-        let duration = data.end_timestamp - data.Start_timestamp;
-        let slicePeriod = data.slice;
-        let cliff = data.cliff_timestamp;
-        let beneficiaries = data.Beneficiaries;
-        let addressOfToken = data.address_of_token;
-        const lock = await contract.lock(amount, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+        try {
+
+
+            const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+
+            const amount = ((data.amount) * (10 ** data.decimalOfToken)).toString();
+
+            console.log(data.amount, '* 10^', data.decimalOfToken, '=', typeof (amount));
+            let start = (data.Start_timestamp);
+            let duration = (data.end_timestamp - data.Start_timestamp);
+            let slicePeriod = data.slice;
+            let cliff = data.cliff_timestamp;
+            let beneficiaries = data.Beneficiaries.toString();
+            let addressOfToken = data.address_of_token.toString();
+
+
+
+            //approval check
+            const tokenContractAddress = addressOfToken;
+            let Tokencontract = null;
+            if (provider.provider.networkVersion == 80001)
+                Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+            else if (provider.provider.networkVersion == 11155111)
+                Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+            const respo = await Tokencontract.json()
+            const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+            const allowance = await Tcontract.allowance(wallet_add[0], contractAddress);
+            if (parseInt(allowance) <= amount) {
+                const approval = await Tcontract.approve(contractAddress, amount)
+                await approval.wait();
+            }
+            console.log(Number(await contract.getTime()));
+            console.log(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken, new Date().getTime())
+
+            const lock = await contract.lock(amount, start.toString(), duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+
+            setTnRunnig(true);
+            await lock.wait();
+            setTnRunnig(false);
+            navigate('/currentVesting');
+        }
+        catch (e) {
+            function extractReasonFromErrorMessage(error) {
+
+                if (error && error.message) {
+                    const errorMessage = error.message;
+                    const startIndex = errorMessage.indexOf('"');
+                    if (startIndex !== -1) {
+                        const endIndex = errorMessage.indexOf('"', startIndex + 1);
+                        if (endIndex !== -1) {
+                            return errorMessage.substring(startIndex, endIndex + 1);
+                        }
+                    }
+                }
+                return null;
+            }
+
+            let msg = extractReasonFromErrorMessage(e)
+            fireToast('error', msg)
+        }
 
 
     }
 
     function CancelLock() {
+        navigate('/newVesting');
+    }
+    function fireToast(type, msg) {
+        if (type == 'error') {
 
+            toast.error(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'success') {
+            toast.success(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
     }
     return (
         <>
+            {
+                tnRunning
+                    ?
+                    <LandingLock />
+                    :
+                    <>
+                        <div className={style.form_div}>
+                            <div className={style.input_form_div}>
+                                <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Amount</p>
+                                    <p className={style.data}>{data.amount}</p>
+                                    <p className={style.input_label}>Start Time</p>
+                                    <p className={style.data}>{start_time_f}</p>
+                                    <p className={style.input_label}>Cliff</p>
+                                    <p className={style.data}>{cliff_time_f}</p>
+                                    <p className={style.input_label}>End Time</p>
+                                    <p className={style.data}>{end_time_f}</p>
+                                    <p className={style.input_label}>Slice Period</p>
+                                    <p className={style.data}>{slice_period_f}</p>
+                                </div>
+                                <div className={style.input_form_div_left}>
 
-            <div className={style.form_div}>
-                <div className={style.input_form_div}>
-                    <div className={style.input_form_div_left}>
-                        <p className={style.input_label}>Amount</p>
-                        <p className={style.data}>{data.amount}</p>
-                        <p className={style.input_label}>Start Time</p>
-                        <p className={style.data}>{start_time_f}</p>
-                        <p className={style.input_label}>Cliff</p>
-                        <p className={style.data}>{cliff_time_f}</p>
-                        <p className={style.input_label}>End Time</p>
-                        <p className={style.data}>{end_time_f}</p>
-                        <p className={style.input_label}>Slice Period</p>
-                        <p className={style.data}>{slice_period_f}</p>
-                    </div>
-                    <div className={style.input_form_div_left}>
+                                    <p className={style.input_label}>Token</p>
+                                    <p className={style.data}>{data.nameOfToken}</p>
+                                    <p className={style.input_label}>Address Of Token</p>
+                                    <p className={style.data}>{data.address_of_token}</p>
+                                    <p className={style.input_label}>Beneficiaries</p>
+                                    <p className={style.data}>{data.Beneficiaries}</p>
 
-                        <p className={style.input_label}>Token</p>
-                        <p className={style.data}>{data.nameOfToken}</p>
-                        <p className={style.input_label}>Address Of Token</p>
-                        <p className={style.data}>{data.address_of_token}</p>
-                        <p className={style.input_label}>Beneficiaries</p>
-                        <p className={style.data}>{data.Beneficiaries}</p>
-
-                        <p className={style.input_label}>Total Duration</p>
-                        <p className={style.data}>{total_duration}</p>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <button className={style.btn_withdraw} onClick={CancelLock} >Cancel</button>
-                <button className={style.btn_withdraw} onClick={ConfirmLock} >Confirm</button>
-            </div>
+                                    <p className={style.input_label}>Total Duration</p>
+                                    <p className={style.data}>{total_duration}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button className={style.btn_withdraw} onClick={CancelLock} >Cancel</button>
+                            <button className={style.btn_withdraw} onClick={ConfirmLock} >Confirm</button>
+                        </div>
+                    </>
+            }
         </>
-
-
 
     )
 }

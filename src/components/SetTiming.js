@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { AppContext } from '../App';
 import ConfirmLock from './ConfirmLock';
 
 const SetTiming = ({ half_form_send }) => {
     console.log(half_form_send);
-    const contractAddress = '0x5444e45e8F82c9379B1843e77658AE1D6f2aC258';
+    const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
     const { page, setPageComponent } = useContext(AppContext)
@@ -41,37 +42,51 @@ const SetTiming = ({ half_form_send }) => {
         const totalTimestamp = (inputTimestamp - currentTimestamp);
         return totalTimestamp;
     }
-    function validateForm(start_time, end_time, cliff) {
+    function validateForm(start_time, end_time, cliff, slice) {
         let strat_error_flag = false
         let start_error_string = '';
         let cliff_error_flag = false
         let cliff_error_string = '';
         let end_error_flag = false
         let end_error_string = '';
-        if ((start_time + 60) < 0) {
+        let cmp_slice_flag = false;
+        let cmp_slice_err = ''
+        if ((start_time) < 0) {
             strat_error_flag = true;
-            start_error_string += ' You can not enter Past time'
+            start_error_string += '-You can not enter Past time. \n'
         }
         if (cliff < 0) {
             cliff_error_flag = true;
-            cliff_error_string += "You can not enter previous time";
+            cliff_error_string += "-You can not enter previous time. \n";
         }
         if (cliff > end_time) {
             cliff_error_flag = true;
-            cliff_error_string += "Cliff must be less than end time";
+            cliff_error_string += "-Cliff must be less than end time. \n";
         }
         if (cliff < start_time) {
             cliff_error_flag = true;
-            cliff_error_string += "Cliff must be greater than start time."
+            cliff_error_string += "-Cliff must be greater than start time. \n"
         }
         if (end_time < 0) {
             end_error_flag = true;
-            end_error_string += "You can not enter previous time";
+            end_error_string += "-You can not enter previous time \n";
         }
         if (end_time < start_time) {
             end_error_flag = true;
-            end_error_string += "End time must be greater than start time."
+            end_error_string += "-End time must be greater than start time. \n"
         }
+        if (slice > (end_time - start_time)) {
+            end_error_flag = true;
+            end_error_string += "-end Time must be greater than slice period. \n"
+        }
+        if (cliff <= start_time) {
+            cliff_error_flag = true;
+            cliff_error_string += "-cliff Must be greater than start time. \n"
+        }
+        if (cliff_error_flag) fireToast('error', cliff_error_string);
+        if (end_error_flag) fireToast('error', end_error_string);
+        if (strat_error_flag) fireToast('error', start_error_string);
+
         setStartError(start_error_string)
         setCliffError(cliff_error_string)
         setEndError(end_error_string);
@@ -79,11 +94,11 @@ const SetTiming = ({ half_form_send }) => {
     }
     async function SetupForm() {
         const current_timestamp = Date.now();
-        const start_time = await toTimestamp(half_form.start_date + 'T' + half_form.start_time);
-        const end_time = await toTimestamp(half_form.end_date + 'T' + half_form.end_time);
-        const cliff = await toTimestamp(half_form.cliff_date + 'T' + half_form.cliff_time);
+        const start_time = toTimestamp(half_form.start_date + 'T' + half_form.start_time);
+        const end_time = toTimestamp(half_form.end_date + 'T' + half_form.end_time);
+        const cliff = toTimestamp(half_form.cliff_date + 'T' + half_form.cliff_time);
         console.log(start_time);
-        if (validateForm(start_time, end_time, cliff)) {
+        if (validateForm(start_time, end_time, cliff, half_form_send.slice)) {
 
             sethalf_form((prevState) => ({
                 ...prevState,
@@ -95,6 +110,33 @@ const SetTiming = ({ half_form_send }) => {
         }
         else {
 
+        }
+    }
+    function fireToast(type, msg) {
+        if (type == 'error') {
+
+            toast.error(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'success') {
+            toast.success(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
         }
     }
 
