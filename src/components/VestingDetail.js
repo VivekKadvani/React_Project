@@ -12,6 +12,7 @@ const ethers = require("ethers")
 const VestingDetail = () => {
     const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
+    const [decimal, setDecimal] = useState()
 
     const { whitemod_flag } = useContext(AppContext)
     const { vestingId } = useParams();
@@ -50,10 +51,12 @@ const VestingDetail = () => {
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const tempschedule = await contract.vestings(wallet_add[0], vestingId);
+
+
             const status = Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))
             console.log(Number(await contract.getTime()), ' >', (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start)));
-            console.log(status);
             setVestingData(tempschedule)
+            getDecimal(tempschedule.params.TokenAddress)
             if (tempschedule.locked) {
                 setDisable(false)
                 setDisableC(false)
@@ -62,12 +65,30 @@ const VestingDetail = () => {
                 setDisableC(true)
                 setDisable(true);
             }
-            console.log(Number(await contract.getTime()))
         }
         getVestingData()
-        console.log('useefect')
-    }, [Flag])
 
+    }, [Flag])
+    async function getDecimal(tokenContractAddress) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const wallet_add = await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        let Tokencontract = null;
+        if (provider.provider.networkVersion == 80001)
+            Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+        else if (provider.provider.networkVersion == 11155111)
+            Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+        const respo = await Tokencontract.json()
+        const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+        const decimal = await Tcontract.decimals();
+        console.log(Number(decimal));
+        setDecimal(Number(decimal))
+        return Number(decimal);
+
+
+
+    }
     const calculate_withdrawable = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
@@ -104,20 +125,23 @@ const VestingDetail = () => {
             })
         }
         catch (e) {
-            ((e.toString()).includes('user rejected transaction'))
-                ?
-                toast.error('User Reject Transaction', {
-                    position: "top-center",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: whitemod_flag ? "light" : "dark",
-                })
-                :
-                console.log(e)
+            function extractReasonFromErrorMessage(error) {
+
+                if (error && error.message) {
+                    const errorMessage = error.message;
+                    const startIndex = errorMessage.indexOf('"');
+                    if (startIndex !== -1) {
+                        const endIndex = errorMessage.indexOf('"', startIndex + 1);
+                        if (endIndex !== -1) {
+                            return errorMessage.substring(startIndex, endIndex + 1);
+                        }
+                    }
+                }
+                return null;
+            }
+
+            let msg = extractReasonFromErrorMessage(e)
+            fireToast('error', e.message)
         }
 
     }
@@ -171,6 +195,37 @@ const VestingDetail = () => {
 
         return dateTimeFormat;
     }
+    function convertSeconds(seconds) {
+        const days = Math.floor(seconds / (24 * 60 * 60));
+        seconds %= 24 * 60 * 60;
+
+        const hours = Math.floor(seconds / (60 * 60));
+        seconds %= 60 * 60;
+
+        const minutes = Math.floor(seconds / 60);
+        seconds %= 60;
+
+        let result = '';
+
+        if (days > 0) {
+            result += days + (days === 1 ? ' day ' : ' days ');
+        }
+
+        if (hours > 0) {
+            result += hours + (hours === 1 ? ' hour ' : ' hours ');
+        }
+
+        if (minutes > 0) {
+            result += minutes + (minutes === 1 ? ' minute ' : ' minutes ');
+        }
+
+        if (seconds > 0 || result === '') {
+            result += seconds + (seconds === 1 ? ' second ' : ' seconds ');
+        }
+
+        return result.trim();
+    }
+
     window.addEventListener('load', () => {
         setFlag(Flag + 1);
     });
@@ -181,6 +236,33 @@ const VestingDetail = () => {
             setWalletConnection(false)
         }
     })
+    function fireToast(type, msg) {
+        if (type == 'error') {
+
+            toast.error(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'success') {
+            toast.success(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+    }
 
     return (
         <div className={style.outer_div}>
@@ -199,7 +281,7 @@ const VestingDetail = () => {
                                 <div className={style.input_form_div}>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Amount</p>
-                                        <p className={style.data}>{parseInt(data.params.amount)}</p>
+                                        <p className={style.data}>{(parseInt(data.params.amount)) / (decimal ** decimal)}</p>
                                         <p className={style.input_label}>Start Time</p>
                                         <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(data.params.start))}</p>
                                         <p className={style.input_label}>End Time</p>
@@ -217,17 +299,17 @@ const VestingDetail = () => {
                                     </div>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Claimed</p>
-                                        <p className={style.data}>{Number(data.claimed)}</p>
+                                        <p className={style.data}>{Number(data.claimed) / (decimal ** decimal)}</p>
                                         <p className={style.input_label}>Locked</p>
-                                        <p className={style.data}>{((data.params.locked) && (new Date().getTime() > parseInt(data.params.start))) ? "Running" : "Completed"}</p>
+                                        <p className={style.data}>{((data.params.locked) && (new Date().getTime() > parseInt(data.params.start))) ? "Active" : "Unactive"}</p>
                                         <p className={style.input_label}>Cliff</p>
                                         <p className={style.data}>{formatTimestamp(parseInt(data.params.cliff))}</p>
                                         <p className={style.input_label}>Slice Period</p>
-                                        <p className={style.data}>{parseInt(data.params.slice_period)}</p>
+                                        <p className={style.data}>{convertSeconds(parseInt(data.params.slice_period))}</p>
                                         <p className={style.input_label}>Recive on Interval</p>
-                                        <p className={style.data}>{parseInt(data.params.recive_on_interval)}</p>
+                                        <p className={style.data}>{parseInt(data.params.recive_on_interval) / (decimal ** decimal)}</p>
                                         <p className={style.input_label_green}>Withdrawable</p>
-                                        <p className={style.data_green}>{withdrawable}</p>
+                                        <p className={style.data_green}>{withdrawable / (decimal ** decimal)}</p>
                                     </div>
                                 </div>}
 

@@ -39,8 +39,6 @@ const ConfirmLock = ({ data }) => {
 
     useEffect(() => {
         const duration = calculateDuration(data.Start_timestamp, data.end_timestamp)
-
-        console.log(duration);
         setTotalDuration(duration)
         setStartTimeF(formatTimestamp(data.Start_timestamp))
         setEndtimeF(formatTimestamp(data.end_timestamp))

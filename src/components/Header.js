@@ -15,15 +15,15 @@ const HeaderMain = () => {
 
     async function connectWallet() {
         try {
+            await setWalletConnection(true);
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
             const start = acc[0].substring(0, 6);
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`
             localStorage.setItem("WalletAddress", Short_acc)
-            await setWalletConnection(true);
             WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
         } catch (error) {
-
+            setLabel("Connect")
         }
     };
     //set label on connect 
@@ -31,6 +31,9 @@ const HeaderMain = () => {
 
         (!WalletConnection) ? connectWallet() : connectWallet()
     }, [Flag])
+    window.addEventListener('load', () => {
+        setFlag(Flag + 1);
+    });
 
     //set label on disconnect
     window.ethereum.on("accountsChanged", (accounts) => {
