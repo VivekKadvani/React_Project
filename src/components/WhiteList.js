@@ -6,6 +6,7 @@ import { AppContext } from '../App'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingLock from '../Animation/LandingLock'
+import { fireEvent } from '@testing-library/react'
 const ethers = require("ethers")
 
 const WhiteList = () => {
@@ -35,31 +36,44 @@ const WhiteList = () => {
 
     useEffect(() => {
         const getVesting = async () => {
-            setLoading(true)
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const wallet_add = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(contractAddress, ABI, signer);
-            (owner.toLowerCase() === wallet_add[0].toLowerCase()) ? setAdminFlag(true) : setAdminFlag(false)
-            const whiteList = [];
-            const len_whitelist = parseInt(await contract.getTotalWhitelist());
+            try {
+                setLoading(true)
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const wallet_add = await provider.send("eth_requestAccounts", []);
+                const signer = provider.getSigner();
+                const contract = new ethers.Contract(contractAddress, ABI, signer);
+                (owner.toLowerCase() === wallet_add[0].toLowerCase()) ? setAdminFlag(true) : setAdminFlag(false)
+                const whiteList = [];
+                const len_whitelist = parseInt(await contract.getTotalWhitelist());
 
-            for (let i = 0; i < len_whitelist; i++) {
-                const tokenContractAddress = await contract.WhiteListTokens(i)
-                let Tokencontract = null;
-                if (provider.provider.networkVersion == 80001)
-                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
-                else if (provider.provider.networkVersion == 11155111)
-                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
-                const respo = await Tokencontract.json()
-                const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
-                const name = await Tcontract.name()
-                const symbol = await Tcontract.symbol()
-                whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})` });
+                for (let i = 0; i < len_whitelist; i++) {
+                    const tokenContractAddress = await contract.WhiteListTokens(i)
+                    let Tokencontract = null;
+                    try {
+                        if (provider.provider.networkVersion == 80001)
+                            Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                        else if (provider.provider.networkVersion == 11155111)
+                            Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                        const respo = await Tokencontract.json()
+                        const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+                        const name = await Tcontract.name()
+                        const symbol = await Tcontract.symbol()
+                        whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})` });
+                    }
+                    catch (e) {
+                        const name = 'not found'
+                        const symbol = 'E'
+                        whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})` });
+
+                    }
+                }
+
+                setData(whiteList)
+                setLoading(false)
             }
-
-            setData(whiteList)
-            setLoading(false)
+            catch (e) {
+                fireToast('error', e)
+            }
         }
         getVesting()
 
@@ -116,17 +130,60 @@ const WhiteList = () => {
                 console.log(e)//toast
         }
     }
+    function fireToast(type, msg) {
+        if (type == 'error') {
 
+            toast.error(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'success') {
+            toast.success(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            })
+        }
+        if (type == 'warn') {
+            toast.warn(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            });
+        }
+    }
     const removeFromWhitelist = async () => {
         setLoading(true)
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const tx = await contract.removeWhitelist(w_add)
-        tx.wait()
-        setLoading(false)
-        setFlag(Flag + 1)
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const tx = await contract.removeWhitelist(w_add)
+            tx.wait()
+            setLoading(false)
+            setFlag(Flag + 1)
+        }
+        catch (e) {
+            fireToast('error', e);
+        }
     }
 
     return (

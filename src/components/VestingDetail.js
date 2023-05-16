@@ -84,8 +84,7 @@ const VestingDetail = () => {
         const respo = await Tokencontract.json()
         const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
         const decimal = await Tcontract.decimals();
-        setDecimal(Number(decimal))
-        return Number(decimal);
+        setDecimal(parseInt(decimal))
 
 
 
