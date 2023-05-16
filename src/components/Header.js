@@ -15,13 +15,13 @@ const HeaderMain = () => {
 
     async function connectWallet() {
         try {
-            await setWalletConnection(true);
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
             const start = acc[0].substring(0, 6);
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`
             localStorage.setItem("WalletAddress", Short_acc)
             WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
+            await setWalletConnection(true);
         } catch (error) {
             setLabel("Connect")
         }
