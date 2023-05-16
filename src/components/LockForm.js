@@ -96,7 +96,7 @@ const LockForm = () => {
     }
 
     function validateForm(form) {
-        const num_regex = /^[0-9]+$/
+        const num_regex = /^[0-9]+(\.[0-9]+)?$/
         const beneficiaries_regex = /^0x[a-fA-F0-9]{40}$/
         const addressOFToken_regex = /^0x[0-9a-fA-F]{40}$/
 

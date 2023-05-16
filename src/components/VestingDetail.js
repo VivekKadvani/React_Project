@@ -16,12 +16,13 @@ const VestingDetail = () => {
 
     const { whitemod_flag } = useContext(AppContext)
     const { vestingId } = useParams();
-    const [btn_disable, setDisable] = useState(true)
-    const [c_btn_disable, setDisableC] = useState(false)
+    const [withdraw_btn_disable, setDisable] = useState(true)
+    const [calculate_btn_disable, setDisableC] = useState(false)
     const [data, setVestingData] = useState()
     const [loading, setLoading] = useState(false)
     const [withdrawable, setWithdrawableToken] = useState(0)
     const [Flag, setFlag] = useState(0);
+    const [statusOfVesting, setVestingStatus] = useState(false)
 
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,
@@ -30,8 +31,8 @@ const VestingDetail = () => {
         title_div: `flex m-6`,
         form_div: whitemod_flag ? `m-11 bg-white_text shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] rounded-xl` : `m-11 bg-dim_black  shadow-[rgba(0,_0,_0,_0.24)_0px_0px_10px] rounded-xl`,
         input_form_div: `flex justify-center `,
-        btn_withdraw: btn_disable ? `bg-pink opacity-25 font-vesting rounded-full px-6 h-10 box-border mx-10  ` : `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
-        btn_calculate: c_btn_disable ? `bg-pink opacity-25 font-vesting rounded-full px-6 h-10 box-border mx-10  ` : `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
+        btn_withdraw: withdraw_btn_disable ? `bg-pink opacity-25 font-vesting rounded-full px-6 h-10 box-border mx-10  ` : `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
+        btn_calculate: calculate_btn_disable ? `bg-pink opacity-25 font-vesting rounded-full px-6 h-10 box-border mx-10  ` : `bg-pink font-vesting rounded-full px-6 h-10 box-border mx-10  `,
         input_field: `bg-white_text rounded font-form mb-10 w-full h-8 p-2`,
         input_label: whitemod_flag ? `font-form text-dim_black justify-self-start mt-4 text-xl` : `font-form text-white justify-self-start mt-4 text-xl`,
         input_label_green: `font-form text-green justify-self-start mt-4 text-xl`,
@@ -53,17 +54,18 @@ const VestingDetail = () => {
             const tempschedule = await contract.vestings(wallet_add[0], vestingId);
 
 
-            const status = Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))
-            console.log(Number(await contract.getTime()), ' >', (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start)));
+            const status = (Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))) && (Number(await contract.getTime()) < (Number(await contract.getTime()) + (Number(((await contract.vestings(wallet_add[0], vestingId)).params).duration))))
+            setVestingStatus(status)
             setVestingData(tempschedule)
             getDecimal(tempschedule.params.TokenAddress)
             if (tempschedule.locked) {
-                setDisable(false)
+                // setDisable(false)
                 setDisableC(false)
             }
             else {
                 setDisableC(true)
                 setDisable(true);
+                setVestingStatus(false)
             }
         }
         getVestingData()
@@ -82,7 +84,6 @@ const VestingDetail = () => {
         const respo = await Tokencontract.json()
         const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
         const decimal = await Tcontract.decimals();
-        console.log(Number(decimal));
         setDecimal(Number(decimal))
         return Number(decimal);
 
@@ -96,9 +97,10 @@ const VestingDetail = () => {
         const contract = new ethers.Contract(contractAddress, ABI, signer);
         const withdrawable = await contract.calculate_available_withdraw_token(vestingId);
         setWithdrawableToken(parseInt(withdrawable));
-        console.log(parseInt(withdrawable));
-        if (parseInt(withdrawable) == 0)
+        if (parseInt(withdrawable) == 0) {
             setDisable(true)
+            fireToast('warn', 'Not enough amount for withdraw')
+        }
         else
             setDisable(false)
     }
@@ -262,6 +264,18 @@ const VestingDetail = () => {
                 theme: whitemod_flag ? "light" : "dark",
             })
         }
+        if (type == 'warn') {
+            toast.warn(msg, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: whitemod_flag ? "light" : "dark",
+            });
+        }
     }
 
     return (
@@ -301,9 +315,9 @@ const VestingDetail = () => {
                                         <p className={style.input_label}>Claimed</p>
                                         <p className={style.data}>{Number(data.claimed) / (decimal ** decimal)}</p>
                                         <p className={style.input_label}>Locked</p>
-                                        <p className={style.data}>{((data.params.locked) && (new Date().getTime() > parseInt(data.params.start))) ? "Active" : "Unactive"}</p>
+                                        <p className={style.data}>{statusOfVesting ? "Active" : "Unactive"}</p>
                                         <p className={style.input_label}>Cliff</p>
-                                        <p className={style.data}>{formatTimestamp(parseInt(data.params.cliff))}</p>
+                                        <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(parseInt(data.params.start) + parseInt(data.params.cliff)))}</p>
                                         <p className={style.input_label}>Slice Period</p>
                                         <p className={style.data}>{convertSeconds(parseInt(data.params.slice_period))}</p>
                                         <p className={style.input_label}>Recive on Interval</p>
@@ -316,8 +330,8 @@ const VestingDetail = () => {
 
                         </div>
                         <div>
-                            <button className={style.btn_calculate} onClick={calculate_withdrawable}>Calculate</button>
-                            <button className={style.btn_withdraw} disabled={btn_disable} onClick={withdraw}>Withdraw</button>
+                            <button className={style.btn_calculate} disabled={calculate_btn_disable} onClick={calculate_withdrawable}>Calculate</button>
+                            <button className={style.btn_withdraw} disabled={withdraw_btn_disable} onClick={withdraw}>Withdraw</button>
                         </div>
                     </div>
                 )

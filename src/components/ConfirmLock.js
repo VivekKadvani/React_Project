@@ -95,7 +95,6 @@ const ConfirmLock = ({ data }) => {
 
             const amount = ((data.amount) * (10 ** data.decimalOfToken)).toString();
 
-            console.log(data.amount, '* 10^', data.decimalOfToken, '=', typeof (amount));
             let start = (data.Start_timestamp);
             let duration = (data.end_timestamp - data.Start_timestamp);
             let slicePeriod = data.slice;
@@ -119,10 +118,7 @@ const ConfirmLock = ({ data }) => {
                 const approval = await Tcontract.approve(contractAddress, amount)
                 await approval.wait();
             }
-            console.log(Number(await contract.getTime()));
-            console.log(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken, new Date().getTime())
-
-            const lock = await contract.lock(amount, start.toString(), duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+            const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
 
             setTnRunnig(true);
             await lock.wait();

@@ -36,8 +36,18 @@ const CurrentVesting = () => {
             const vestedSchedules = [];
             const len_vesting = parseInt(await contract.getTotalVesting());
 
+            let Tokencontract = null;
             for (let i = 0; i < len_vesting; i++) {
                 let tempschedule = await contract.vestings(wallet_add[0], i);
+                const tokenContractAddress = (tempschedule.params.TokenAddress);
+                if (provider.provider.networkVersion == 80001)
+                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+                else if (provider.provider.networkVersion == 11155111)
+                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+                const respo = await Tokencontract.json()
+                const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+                const decimal = Number(await Tcontract.decimals())
+                tempschedule = { ...tempschedule, decimal }
                 vestedSchedules.push(await tempschedule);
             }
             setData(vestedSchedules);
@@ -69,7 +79,7 @@ const CurrentVesting = () => {
                         <div>Id</div>
                         <div class='col-span-2 '>Beneficiaries</div>
                         <div>Amount</div>
-                        <div>Duration</div>
+                        <div>Claimed</div>
                     </div>
 
                     {loading
@@ -84,8 +94,8 @@ const CurrentVesting = () => {
                                     <div className={style.vesting_data}>
                                         <div>{index}</div>
                                         <div class='col-span-2'>{e.params.beneficiaries}</div>
-                                        <div>{parseInt(e.params.amount)}</div>
-                                        <div>{(e).locked}</div>
+                                        <div>{((Number(e.params.amount)) / (e.decimal ** e.decimal))}</div>
+                                        <div>{Number(e.claimed) / e.decimal ** e.decimal}</div>
                                     </div>
                                 </NavLink>
                             )

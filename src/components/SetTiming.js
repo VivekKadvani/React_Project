@@ -5,7 +5,6 @@ import { AppContext } from '../App';
 import ConfirmLock from './ConfirmLock';
 
 const SetTiming = ({ half_form_send }) => {
-    console.log(half_form_send);
     const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
     const { whitemod_flag, setWhitemodflag } = useContext(AppContext)
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
@@ -21,7 +20,6 @@ const SetTiming = ({ half_form_send }) => {
     const [loading, setLoading] = useState(false)
     const [whiteListedToken, setData] = useState([])
     const navigate = useNavigate();
-    console.log(half_form);
     const style = {
         div_inner: whitemod_flag ? `min-h-fit min-w-fit bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 rounded-xl  ` : `min-h-fit min-w-fit bg-grey m-12 rounded-xl  `,
         title_text: `font-vesting text-pink text-3xl justify-self-start`,
@@ -97,7 +95,6 @@ const SetTiming = ({ half_form_send }) => {
         const start_time = toTimestamp(half_form.start_date + 'T' + half_form.start_time);
         const end_time = toTimestamp(half_form.end_date + 'T' + half_form.end_time);
         const cliff = toTimestamp(half_form.cliff_date + 'T' + half_form.cliff_time);
-        console.log(start_time);
         if (validateForm(start_time, end_time, cliff, half_form_send.slice)) {
 
             sethalf_form((prevState) => ({
