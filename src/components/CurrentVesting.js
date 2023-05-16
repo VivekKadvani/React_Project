@@ -94,8 +94,8 @@ const CurrentVesting = () => {
                                     <div className={style.vesting_data}>
                                         <div>{index}</div>
                                         <div class='col-span-2'>{e.params.beneficiaries}</div>
-                                        <div>{((Number(e.params.amount)) / (e.decimal ** e.decimal))}</div>
-                                        <div>{Number(e.claimed) / e.decimal ** e.decimal}</div>
+                                        <div>{((Number(e.params.amount)) / (10 ** e.decimal))}</div>
+                                        <div>{Number(e.claimed) / (10 ** e.decimal)}</div>
                                     </div>
                                 </NavLink>
                             )

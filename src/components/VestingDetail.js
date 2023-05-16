@@ -295,7 +295,7 @@ const VestingDetail = () => {
                                 <div className={style.input_form_div}>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Amount</p>
-                                        <p className={style.data}>{(parseInt(data.params.amount)) / (decimal ** decimal)}</p>
+                                        <p className={style.data}>{(parseInt(data.params.amount)) / (10 ** decimal)}</p>
                                         <p className={style.input_label}>Start Time</p>
                                         <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(data.params.start))}</p>
                                         <p className={style.input_label}>End Time</p>
@@ -313,7 +313,7 @@ const VestingDetail = () => {
                                     </div>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Claimed</p>
-                                        <p className={style.data}>{Number(data.claimed) / (decimal ** decimal)}</p>
+                                        <p className={style.data}>{Number(data.claimed) / (10 ** decimal)}</p>
                                         <p className={style.input_label}>Locked</p>
                                         <p className={style.data}>{statusOfVesting ? "Active" : "Unactive"}</p>
                                         <p className={style.input_label}>Cliff</p>
@@ -321,9 +321,9 @@ const VestingDetail = () => {
                                         <p className={style.input_label}>Slice Period</p>
                                         <p className={style.data}>{convertSeconds(parseInt(data.params.slice_period))}</p>
                                         <p className={style.input_label}>Recive on Interval</p>
-                                        <p className={style.data}>{parseInt(data.params.recive_on_interval) / (decimal ** decimal)}</p>
+                                        <p className={style.data}>{parseInt(data.params.recive_on_interval) / (10 ** decimal)}</p>
                                         <p className={style.input_label_green}>Withdrawable</p>
-                                        <p className={style.data_green}>{withdrawable / (decimal ** decimal)}</p>
+                                        <p className={style.data_green}>{withdrawable / (10 ** decimal)}</p>
                                     </div>
                                 </div>}
 
