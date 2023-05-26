@@ -1,5 +1,5 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Sequelize } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class vesting extends Model {
     static associate(models) {
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       locked: {
-        type: DataTypes.BOOL,
+        type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
       startTime: {
@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
           is: /^(0x|0X)?[a-fA-F0-9]+$'/,
         },
         references:{
-          model:"whitelists",
+          model:"whitelist",
           key:"tokenAddress"
         }
       },

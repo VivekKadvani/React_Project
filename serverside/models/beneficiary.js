@@ -1,9 +1,9 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, Sequelize } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class beneficiary extends Model {
     static associate(models) {
-      beneficiary.belongsToMany(models.vesting,{foreignKey:"vestingId"})
+      beneficiary.belongsToMany(models.vesting, {foreignKey:"vestingId", through:"beneficiarybelongstovesting"})
     }
   }
   beneficiary.init(
@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references :{
-          model:"vestings",
+          model:"vesting",
           key:"vestingId",
         }
       }
