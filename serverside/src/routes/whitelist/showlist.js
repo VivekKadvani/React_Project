@@ -1,5 +1,5 @@
 const express = require("express");
-const showList = require("../../controller/current-vesting/showlist");
+const showList = require("../../controller/whitelist/showList");
 const router = express.Router();
 
 router.get("/list",showList);

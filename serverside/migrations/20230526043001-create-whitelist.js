@@ -12,6 +12,7 @@ module.exports = {
         tokenAddress: {
           type: Sequelize.STRING,
           primaryKey: true,
+          allowNull:false,
           validate: {
             is: /^(0x|0X)?[a-fA-F0-9]+$'/,
           },

@@ -4,11 +4,11 @@ const app = express();
 const newvestRoute = require("./src/routes/newvesting/vestnew")
 const currentvestRoute = require("./src/routes/currentvest/index")
 const whitelistRoute = require("./src/routes/whitelist/index");
-const { connectdb } = require("./db");
+const { connectdb } = require("./connectdb");
 require("dotenv").config();
 
 // connecting database
-connectdb();
+// connectdb();
 
 // adding different configurations
 app.use(express.json());

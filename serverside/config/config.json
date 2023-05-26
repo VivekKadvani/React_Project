@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "testuser",
-    "password": "1234",
-    "database": "tempvestingdb",
+    "username": "admin",
+    "password": "let us vest",
+    "database": "vestingdb",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },

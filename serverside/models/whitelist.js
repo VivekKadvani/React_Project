@@ -15,9 +15,6 @@ module.exports = (sequelize, DataTypes) => {
       tokenAddress: {
         type: DataTypes.STRING,
         primaryKey: true,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
       },
       tokenName: {
         type: DataTypes.STRING,
@@ -29,9 +26,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       networkId: {
         type: DataTypes.STRING,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
         allowNull: false,
       },
     },
