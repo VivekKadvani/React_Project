@@ -19,7 +19,8 @@ const LockForm = () => {
     const [form, setForm] = useState({})
     const [loading, setLoading] = useState(false)
     const [whiteListedToken, setData] = useState([])
-    const [page, setPageComponent] = useState(false)
+    const [page, setPageComponent] = useState(false);
+    const [Flag,setFlag] = useState(0);
 
     const style = {
         div_inner: whitemod_flag ? `min-h-fit min-w-fit bg-light_pink shadow-[rgba(0,_0,_0,_0.24)_0px_0px_5px] m-12 rounded-xl  ` : `min-h-fit min-w-fit bg-grey m-12 rounded-xl  `,
@@ -41,39 +42,23 @@ const LockForm = () => {
 
         //dropdown setup data
         async function SetDropdown() {
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const wallet_add = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(contractAddress, ABI, signer);
-            const whiteList = [];
-            const len_whitelist = parseInt(await contract.getTotalWhitelist());
-
-            for (let i = 0; i < len_whitelist; i++) {
-                const tokenContractAddress = await contract.WhiteListTokens(i)
-                let Tokencontract = null;
-                try{
-
-                    if (provider.provider.networkVersion == 80001)
-                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
-                    else if (provider.provider.networkVersion == 11155111)
-                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`);
-                    const respo = await Tokencontract.json()
-                    const Tcontract = new ethers.Contract(tokenContractAddress,await respo.result, signer);
-                    const name = await Tcontract.name()
-                    const symbol = await Tcontract.symbol()
-                    whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol}) - ${tokenContractAddress}` });
-                }
-                catch(e){
-                    const name = 'not found'
-                    const symbol = 'E'
-                    whiteList.push({ C_address: tokenContractAddress, C_name: `${name} (${symbol})` });
-
-                }
+            try {
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const networkId = provider.provider.chainId;
+                let response = await fetch(`/api/whitelist/list?networkId=${networkId}`)
+                response = await response.json();
+                setData(response);
+            } catch (e) {
+                console.log(e);
+                fireToast("error", e);
             }
-            setData(whiteList)
         }
         SetDropdown()
-    }, [])
+    }, [Flag]);
+
+    window.addEventListener("load", () => {
+        setFlag(Flag + 1);
+    });
 
     //set form data object and validate it
     async function SetupForm() {
@@ -125,7 +110,7 @@ const LockForm = () => {
 
     }
     function fireToast(type, msg) {
-        if (type == 'error') {
+        if (type === 'error') {
 
             toast.error(msg, {
                 position: "top-center",
@@ -179,7 +164,7 @@ const LockForm = () => {
                                                         whiteListedToken.map((e, index) => {
                                                             return (
                                                                 <>
-                                                                    <option value={e.C_address}>{e.C_name}</option>
+                                                                    <option value={e.tokenAddress}>{`${e.tokenName}(${e.tokenSymbol})`} - {e.tokenAddress}</option>
                                                                 </>
                                                             )
                                                         })

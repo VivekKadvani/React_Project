@@ -12,6 +12,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from './components/Footer';
 
+console.log(new Date().getTime());
+
 export const AppContext = createContext();
 
 function App() {

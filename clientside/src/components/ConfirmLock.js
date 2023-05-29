@@ -6,6 +6,7 @@ import Popup from './Popup';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingLock from '../Animation/LandingLock';
+import { addvestingToDB } from '../dbInteraction';
 const ethers = require("ethers")
 const ConfirmLock = ({ data }) => {
     const { whitemod_flag } = useContext(AppContext)
@@ -112,20 +113,31 @@ const ConfirmLock = ({ data }) => {
             else if (provider.provider.networkVersion == 11155111)
                 Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
             const respo = await Tokencontract.json()
-            const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
-            const allowance = await Tcontract.allowance(wallet_add[0], contractAddress);
-            if (parseInt(allowance) <= amount) {
-                const approval = await Tcontract.approve(contractAddress, amount)
-                await approval.wait();
-            }
-            const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+            // const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+            // const allowance = await Tcontract.allowance(wallet_add[0], contractAddress);
+            // if (parseInt(allowance) <= amount) {
+            //     const approval = await Tcontract.approve(contractAddress, amount)
+            //     await approval.wait();
+            // }
+            // const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+            console.log(data.endTimestamp);
+            addvestingToDB(  
+                start,
+                cliff,
+                slicePeriod,
+                data.endTimestamp,
+                addressOfToken,
+                amount,
+                whitemod_flag
+            );
 
             setTnRunnig(true);
-            await lock.wait();
+            // await lock.wait();
             setTnRunnig(false);
             navigate('/currentVesting');
         }
         catch (e) {
+            console.log(e);
             function extractReasonFromErrorMessage(error) {
 
                 if (error && error.message) {

@@ -36,28 +36,22 @@ module.exports = (sequelize, DataTypes) => {
       },
       networkId: {
         type: DataTypes.STRING,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
         allowNull: false,
       },
       tokenAddress: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
         references:{
           model:"whitelist",
           key:"tokenAddress"
         }
       },
       amount: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL(38,18),
         allowNull: false,
       },
       recieveOnInterval: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DECIMAL(38,18),
         allowNull: false,
       },
     },
