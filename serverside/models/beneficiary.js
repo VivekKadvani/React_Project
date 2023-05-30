@@ -16,9 +16,6 @@ module.exports = (sequelize, DataTypes) => {
       beneficiary: {
         type: DataTypes.STRING,
         allowNull: false,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
         default: "0x00",
       },
       amount: {
@@ -32,9 +29,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       networkId: {
         type: DataTypes.STRING,
-        validate: {
-          is: /^(0x|0X)?[a-fA-F0-9]+$'/,
-        },
         allowNull: false,
       },
       vestingId: {

@@ -31,26 +31,10 @@ const CurrentVesting = () => {
             setLoading(true)
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const wallet_add = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(contractAddress, ABI, signer);
-            const vestedSchedules = [];
-            const len_vesting = parseInt(await contract.getTotalVesting());
-
-            let Tokencontract = null;
-            for (let i = 0; i < len_vesting; i++) {
-                let tempschedule = await contract.vestings(wallet_add[0], i);
-                const tokenContractAddress = (tempschedule.params.TokenAddress);
-                if (provider.provider.networkVersion == 80001)
-                    Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
-                else if (provider.provider.networkVersion == 11155111)
-                    Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
-                const respo = await Tokencontract.json()
-                const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
-                const decimal = Number(await Tcontract.decimals())
-                tempschedule = { ...tempschedule, decimal }
-                vestedSchedules.push(await tempschedule);
-            }
-            setData(vestedSchedules);
+            let beneficiaryData = await fetch(`/api/currentvests/list?beneficiaryAddress=${wallet_add[0]}&networkId=${provider.provider.chainId}`)
+            beneficiaryData = await beneficiaryData.json();
+            console.log(beneficiaryData);
+            setData(beneficiaryData.data);
             setLoading(false);
         }
         getVesting()
@@ -90,12 +74,12 @@ const CurrentVesting = () => {
                         &&
                         data.map((e, index) => {
                             return (
-                                <NavLink to={`/vestingDetail/${index}`} key={index}>
+                                <NavLink to={`/vestingDetail/${index}?vestingId=${e.vestingId}`} key={index}>
                                     <div className={style.vesting_data}>
                                         <div>{index}</div>
-                                        <div class='col-span-2'>{e.params.beneficiaries}</div>
-                                        <div>{((Number(e.params.amount)) / (10 ** e.decimal))}</div>
-                                        <div>{Number(e.claimed) / (10 ** e.decimal)}</div>
+                                        <div class='col-span-2'>{e.beneficiary}</div>
+                                        <div>{Number(e.amount)}</div>
+                                        <div>{Number(e.claimed)}</div>
                                     </div>
                                 </NavLink>
                             )
@@ -111,3 +95,23 @@ const CurrentVesting = () => {
 }
 
 export default CurrentVesting
+
+// const signer = provider.getSigner();
+// const contract = new ethers.Contract(contractAddress, ABI, signer);
+            // const vestedSchedules = [];
+            // const len_vesting = parseInt(await contract.getTotalVesting());
+
+            // let Tokencontract = null;
+            // for (let i = 0; i < len_vesting; i++) {
+            //     let tempschedule = await contract.vestings(wallet_add[0], i);
+            //     const tokenContractAddress = (tempschedule.params.TokenAddress);
+            //     if (provider.provider.networkVersion == 80001)
+            //     Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+            //     else if (provider.provider.networkVersion == 11155111)
+            //     Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
+            //     const respo = await Tokencontract.json()
+            //     const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+            //     const decimal = Number(await Tcontract.decimals())
+            //     tempschedule = { ...tempschedule, decimal }
+            //     vestedSchedules.push(await tempschedule);
+            // }

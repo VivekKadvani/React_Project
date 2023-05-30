@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      decimals:{
+        type: DataTypes.INTEGER,
+        allowNull: true, 
+        defaultValue: 18,
+        }
     },
     {
       timestamps: false,

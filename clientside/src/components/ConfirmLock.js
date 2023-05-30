@@ -125,7 +125,7 @@ const ConfirmLock = ({ data }) => {
                 start,
                 cliff,
                 slicePeriod,
-                data.endTimestamp,
+                data.end_timestamp,
                 addressOfToken,
                 amount,
                 whitemod_flag

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       locked: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false,
+        defaultValue: true,
       },
       startTime: {
         type: DataTypes.DATE,

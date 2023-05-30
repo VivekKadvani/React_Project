@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from 'react'
-import ABI from '../ABI/ABI.json'
 import Popup from './Popup'
 import { AppContext } from '../App'
 import { toast } from 'react-toastify';
@@ -40,12 +39,13 @@ const LockForm = () => {
 
     useEffect(() => {
 
-        //dropdown setup data
+        //dropdown setup data 
         async function SetDropdown() {
             try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const networkId = provider.provider.chainId;
-                let response = await fetch(`/api/whitelist/list?networkId=${networkId}`)
+                let provider = new ethers.providers.Web3Provider(window.ethereum);
+                provider = provider.provider;
+                console.log(provider);
+                let response = await fetch(`/api/whitelist/list?networkId=${provider.chainId}`)
                 response = await response.json();
                 setData(response);
             } catch (e) {

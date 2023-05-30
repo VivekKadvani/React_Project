@@ -1,6 +1,6 @@
 // import React, { useState, createContext, useContext, useEffect } from 'react'
 import { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import ABI from '../ABI/ABI.json'
 import { AppContext } from '../App'
 import Popup from './Popup';
@@ -44,22 +44,23 @@ const VestingDetail = () => {
         data: whitemod_flag ? `text-dim_black pb-4` : `text-white_text pb-4`,
         data_green: `text-green pb-4`
     }
+    const location = useLocation();
 
     useEffect(() => {
         const getVestingData = async () => {
+            const queryParams = new URLSearchParams(location.search);
+            const dbVestingId = queryParams.get("vestingId");
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const wallet_add = await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            const contract = new ethers.Contract(contractAddress, ABI, signer);
-            const tempschedule = await contract.vestings(wallet_add[0], vestingId);
-
-
-            const status = (Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))) && (Number(await contract.getTime()) < (Number(await contract.getTime()) + (Number(((await contract.vestings(wallet_add[0], vestingId)).params).duration))))
-            setVestingStatus(status)
-            setVestingData(tempschedule)
-            getDecimal(tempschedule.params.TokenAddress)
-            if (tempschedule.locked) {
+            let tempschedule = await fetch(`/api/currentvests/findvesting?vestingId=${dbVestingId}&beneficiaryAddress=${wallet_add[0]}`)
+            tempschedule = await tempschedule.json();
+            // const status = (Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))) && (Number(await contract.getTime()) < (Number(await contract.getTime()) + (Number(((await contract.vestings(wallet_add[0], vestingId)).params).duration))))
+            setVestingData(tempschedule.data)
+            console.log(tempschedule.data);
+            // getDecimal(tempschedule.params.TokenAddress)
+            if (tempschedule.data.locked) {
                 // setDisable(false)
+                setVestingStatus(true)
                 setDisableC(false)
             }
             else {
@@ -71,6 +72,7 @@ const VestingDetail = () => {
         getVestingData()
 
     }, [Flag])
+
     async function getDecimal(tokenContractAddress) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const wallet_add = await provider.send("eth_requestAccounts", []);
@@ -86,9 +88,8 @@ const VestingDetail = () => {
         const decimal = await Tcontract.decimals();
         setDecimal(parseInt(decimal))
 
-
-
     }
+
     const calculate_withdrawable = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
@@ -146,25 +147,7 @@ const VestingDetail = () => {
         }
 
     }
-    function formatTimestamp(unixTimestamp) {
-        const currentTimestamp = Date.now(); // Current timestamp in milliseconds
-        const targetTimestamp = unixTimestamp * 1000; // Convert Unix timestamp to milliseconds
 
-        const resultTimestamp = currentTimestamp + targetTimestamp;
-        const dateObject = new Date(resultTimestamp);
-
-        const day = String(dateObject.getDate()).padStart(2, '0');
-        const month = String(dateObject.getMonth() + 1).padStart(2, '0');
-        const year = String(dateObject.getFullYear());
-        const hours = String(dateObject.getHours()).padStart(2, '0');
-        const minutes = String(dateObject.getMinutes()).padStart(2, '0');
-        const seconds = String(dateObject.getSeconds()).padStart(2, '0');
-
-        const formattedDate = `${day}-${month}-${year}`;
-        const formattedTime = `${hours}:${minutes}:${seconds}`;
-
-        return `${formattedDate} ${formattedTime}`;
-    }
     function calculateDuration(startTimestamp, endTimestamp) {
         const start = new Date(startTimestamp * 1000); // Convert to milliseconds
         const end = new Date(endTimestamp * 1000); // Convert to milliseconds
@@ -183,16 +166,17 @@ const VestingDetail = () => {
         return formattedDuration;
     }
     function convertUnixTimestampToDateTime(unixTimestamp) {
-        const date = new Date(unixTimestamp * 1000);
+        const date = new Date(unixTimestamp);
 
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
+        // const day = String(date.getDate()).padStart(2, '0');
+        // const month = String(date.getMonth() + 1).padStart(2, '0');
+        // const year = date.getFullYear();
+        // const hours = String(date.getHours()).padStart(2, '0');
+        // const minutes = String(date.getMinutes()).padStart(2, '0');
+        // const seconds = String(date.getSeconds()).padStart(2, '0');
 
-        const dateTimeFormat = `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+        const dateTimeFormat = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()} 
+                                ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
         return dateTimeFormat;
     }
@@ -294,33 +278,33 @@ const VestingDetail = () => {
                                 <div className={style.input_form_div}>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Amount</p>
-                                        <p className={style.data}>{(parseInt(data.params.amount)) / (10 ** decimal)}</p>
+                                        <p className={style.data}>{(parseInt(data.amount))}</p>
                                         <p className={style.input_label}>Start Time</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(data.params.start))}</p>
+                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.startTime)}</p>
                                         <p className={style.input_label}>End Time</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(parseInt(data.params.start) + parseInt(data.params.duration)))}</p>
+                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.endTime)}</p>
 
 
                                         <p className={style.input_label}>Duration</p>
-                                        <p className={style.data}>{calculateDuration(parseInt(data.params.start), parseInt(parseInt(data.params.start) + parseInt(data.params.duration)))}</p>
+                                        <p className={style.data}>{calculateDuration(data.startTime, data.endTime)}</p>  {/*calculateDuration(parseInt(data.start), parseInt(parseInt(data.params.start) + parseInt(data.params.duration))) */}
                                         <p className={style.input_label}>Beneficiaries</p>
-                                        <p className={style.data}>{data.params.beneficiaries}</p>
+                                        <p className={style.data}>{data.beneficiary}</p>
                                         <p className={style.input_label}>Address Of Token</p>
-                                        <p className={style.data}>{data.params.TokenAddress}</p>
+                                        <p className={style.data}>{data.tokenAddress}</p>
 
 
                                     </div>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Claimed</p>
-                                        <p className={style.data}>{Number(data.claimed) / (10 ** decimal)}</p>
+                                        <p className={style.data}>{Number(data.claimed)}</p>  {/* Number(data.claimed) / (10 ** decimal)*/}
                                         <p className={style.input_label}>Locked</p>
                                         <p className={style.data}>{statusOfVesting ? "Active" : "Unactive"}</p>
                                         <p className={style.input_label}>Cliff</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(parseInt(parseInt(data.params.start) + parseInt(data.params.cliff)))}</p>
+                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.cliff)}</p>
                                         <p className={style.input_label}>Slice Period</p>
-                                        <p className={style.data}>{convertSeconds(parseInt(data.params.slice_period))}</p>
+                                        <p className={style.data}>{convertSeconds(parseInt(data.slicePeriod))}</p>
                                         <p className={style.input_label}>Recive on Interval</p>
-                                        <p className={style.data}>{parseInt(data.params.recive_on_interval) / (10 ** decimal)}</p>
+                                        <p className={style.data}>{parseInt(data.recieveOnInterval)}</p>
                                         <p className={style.input_label_green}>Withdrawable</p>
                                         <p className={style.data_green}>{withdrawable / (10 ** decimal)}</p>
                                     </div>

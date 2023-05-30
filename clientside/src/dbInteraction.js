@@ -1,9 +1,10 @@
 const { ethers } = require("ethers");
 const { toast } = require("react-toastify");
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+let provider = new ethers.providers.Web3Provider(window.ethereum);
+const wallet_add = await provider.send("eth_requestAccounts", []);
 const signer = provider.getSigner();
-const networkId = provider.provider.chainId;
+provider = provider.provider
 
 const headers = {
     "Content-type": "application/json; charset=UTF-8"
@@ -11,7 +12,8 @@ const headers = {
 
 export const addToWhitelistDB = async (tokenAddress, whitemod_flag) => {
 
-    let Tokencontract, tokenName, tokenSymbol;
+    let Tokencontract, tokenName, tokenSymbol,decimals;
+    const networkId = provider.chainId;
 
     try {
         if (networkId === "0x13881")
@@ -26,6 +28,7 @@ export const addToWhitelistDB = async (tokenAddress, whitemod_flag) => {
         const Tcontract = new ethers.Contract(tokenAddress, respo.result, signer);
         tokenName = await Tcontract.name();
         tokenSymbol = await Tcontract.symbol();
+        decimals = await Tcontract.decimals();
     } catch (error) {
         console.log(error);
         if (error.message.includes("Cannot read properties of undefined")) {
@@ -54,6 +57,7 @@ export const addToWhitelistDB = async (tokenAddress, whitemod_flag) => {
                 tokenName,
                 tokenSymbol,
                 networkId,
+                decimals
             }),
             headers
         }
@@ -61,6 +65,9 @@ export const addToWhitelistDB = async (tokenAddress, whitemod_flag) => {
 };
 
 export const removeFromWhitelistDB = async (tokenAddress, whitemod_flag) => {
+
+    const networkId = provider.chainId;
+
     try {
         const tx = await fetch(
             "/api/whitelist/modification/deletefromlist",
@@ -91,6 +98,10 @@ export const removeFromWhitelistDB = async (tokenAddress, whitemod_flag) => {
 }
 
 export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAddress,amount,whitemod_flag)=>{
+
+    
+    const networkId = provider.chainId;
+
     try {
         const currentTime = new Date().getTime();
         const postObj = {
@@ -101,7 +112,8 @@ export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAdd
             networkId,
             tokenAddress,
             amount : Number(amount)/(10**18),
-            recieveOnInterval: (slicePeriod * amount) / (endTime-startTime),
+            recieveOnInterval: ((slicePeriod * amount) / (endTime-startTime))/(10**18),
+            beneficiaryAddress : wallet_add[0]
         }
 
         console.log(postObj);
