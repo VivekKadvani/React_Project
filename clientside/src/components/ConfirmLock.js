@@ -120,7 +120,6 @@ const ConfirmLock = ({ data }) => {
             //     await approval.wait();
             // }
             // const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
-            console.log(data.endTimestamp);
             addvestingToDB(  
                 start,
                 cliff,

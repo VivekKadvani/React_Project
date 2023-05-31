@@ -54,12 +54,9 @@ const VestingDetail = () => {
             const wallet_add = await provider.send("eth_requestAccounts", []);
             let tempschedule = await fetch(`/api/currentvests/findvesting?vestingId=${dbVestingId}&beneficiaryAddress=${wallet_add[0]}`)
             tempschedule = await tempschedule.json();
-            // const status = (Number(await contract.getTime()) > (Number(((await contract.vestings(wallet_add[0], vestingId)).params).start))) && (Number(await contract.getTime()) < (Number(await contract.getTime()) + (Number(((await contract.vestings(wallet_add[0], vestingId)).params).duration))))
             setVestingData(tempschedule.data)
-            console.log(tempschedule.data);
             // getDecimal(tempschedule.params.TokenAddress)
             if (tempschedule.data.locked) {
-                // setDisable(false)
                 setVestingStatus(true)
                 setDisableC(false)
             }
@@ -91,6 +88,7 @@ const VestingDetail = () => {
     }
 
     const calculate_withdrawable = async () => {
+        console.log(vestingId);
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
@@ -108,10 +106,12 @@ const VestingDetail = () => {
     const withdraw = async () => {
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
+            const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
             const tx = await contract.withdraw(vestingId);
+            const vestings = await contract.vestings(wallet_add[0],vestingId);
+            console.log(vestings);
             setLoading(true)
             await tx.wait()
             setLoading(false)
@@ -142,7 +142,6 @@ const VestingDetail = () => {
                 return null;
             }
 
-            let msg = extractReasonFromErrorMessage(e)
             fireToast('error', e.message)
         }
 
@@ -168,18 +167,12 @@ const VestingDetail = () => {
     function convertUnixTimestampToDateTime(unixTimestamp) {
         const date = new Date(unixTimestamp);
 
-        // const day = String(date.getDate()).padStart(2, '0');
-        // const month = String(date.getMonth() + 1).padStart(2, '0');
-        // const year = date.getFullYear();
-        // const hours = String(date.getHours()).padStart(2, '0');
-        // const minutes = String(date.getMinutes()).padStart(2, '0');
-        // const seconds = String(date.getSeconds()).padStart(2, '0');
-
         const dateTimeFormat = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()} 
                                 ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
         return dateTimeFormat;
     }
+    
     function convertSeconds(seconds) {
         const days = Math.floor(seconds / (24 * 60 * 60));
         seconds %= 24 * 60 * 60;

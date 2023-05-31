@@ -105,10 +105,10 @@ export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAdd
     try {
         const currentTime = new Date().getTime();
         const postObj = {
-            startTime : startTime+ currentTime,
-            cliff :cliff + currentTime,
+            startTime : ((startTime * 1000)+ currentTime),
+            cliff : ((cliff * 1000) + currentTime),
             slicePeriod,
-            endTime : endTime + currentTime,
+            endTime : ((endTime * 1000 )+ currentTime),
             networkId,
             tokenAddress,
             amount : Number(amount)/(10**18),
@@ -116,7 +116,7 @@ export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAdd
             beneficiaryAddress : wallet_add[0]
         }
 
-        console.log(postObj);
+        console.log(postObj , ((endTime * 1000 )+ currentTime));
         const response = await fetch(
             "/api/vestnew/locktoken",
             {
