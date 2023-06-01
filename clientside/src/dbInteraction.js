@@ -130,3 +130,14 @@ export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAdd
         console.log(error);
     }
 }
+
+export const userRegistration = async(messageObj,signedMessage) =>{
+
+    const userRegistrationStatus = await fetch("/api/register",{
+        method:"POST",
+        body : JSON.stringify({
+            signedMessage , messageObj:messageObj
+        }),
+        headers
+    })
+}

@@ -4,6 +4,8 @@ import lock_logo from '../images/lock_logo.png'
 import dark_mode from '../images/dark-theme.svg'
 import { useState } from 'react'
 import { AppContext } from '../App'
+import {ethers} from "ethers"
+import { userRegistration } from '../dbInteraction'
 
 
 const HeaderMain = () => {
@@ -15,7 +17,12 @@ const HeaderMain = () => {
 
     async function connectWallet() {
         try {
+            // const requestLogin = await fetch("/login");
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
+            const provider  = new ethers.providers.Web3Provider(window.ethereum);
+            const messageObj = {nounce : (Math.random()*100) , accountAddress:acc[0]}
+            const signedMessage = await provider.getSigner().signMessage(JSON.stringify(messageObj));
+            userRegistration(messageObj, signedMessage)
             const start = acc[0].substring(0, 6);
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`
@@ -23,6 +30,7 @@ const HeaderMain = () => {
             WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
             await setWalletConnection(true);
         } catch (error) {
+            console.log(error);
             setLabel("Connect")
         }
     };
@@ -41,7 +49,6 @@ const HeaderMain = () => {
             setLabel("Connect")
             setFlag(Flag + 1)
             setWalletConnection(false)
-
         }
         else {
             setLabel(accounts[0])
