@@ -1,11 +1,12 @@
 const express = require("express");
 const findVesting = require("../../controller/current-vesting/findvesting");
-const calculateWithdrawable = require("../../controller/current-vesting/calculateWithrawable");
-const withdraw = require("../../controller/current-vesting/withdraw");
+const updateClaimed = require("../../controller/current-vesting/updateClaimed");
 const router = express.Router();
+const {
+    findVestingValidation, updateClaimedValidation
+} = require("../../middleware/validation")
 
-router.get("/",findVesting);
-router.get("/:vestingId/calculateWithdrawable",calculateWithdrawable);
-router.post("/:vestingId/withdraw",withdraw);
+router.get("/", findVestingValidation, findVesting);
+router.put("/updateclaiming",updateClaimedValidation,updateClaimed)
 
 module.exports = router;

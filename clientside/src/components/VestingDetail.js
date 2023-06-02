@@ -1,4 +1,3 @@
-// import React, { useState, createContext, useContext, useEffect } from 'react'
 import { useEffect, useState, useContext } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import ABI from '../ABI/ABI.json'
@@ -7,6 +6,7 @@ import Popup from './Popup';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LandingLock from '../Animation/LandingLock';
+import { updateClaimed } from '../dbInteraction';
 
 const ethers = require("ethers")
 const VestingDetail = () => {
@@ -55,7 +55,7 @@ const VestingDetail = () => {
             let tempschedule = await fetch(`/api/currentvests/findvesting?vestingId=${dbVestingId}&beneficiaryAddress=${wallet_add[0]}`)
             tempschedule = await tempschedule.json();
             setVestingData(tempschedule.data)
-            // getDecimal(tempschedule.params.TokenAddress)
+            getDecimal(tempschedule.data.tokenAddress)
             if (tempschedule.data.locked) {
                 setVestingStatus(true)
                 setDisableC(false)
@@ -72,7 +72,6 @@ const VestingDetail = () => {
 
     async function getDecimal(tokenContractAddress) {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const wallet_add = await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
 
         let Tokencontract = null;
@@ -88,7 +87,6 @@ const VestingDetail = () => {
     }
 
     const calculate_withdrawable = async () => {
-        console.log(vestingId);
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
@@ -109,11 +107,17 @@ const VestingDetail = () => {
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
-            const tx = await contract.withdraw(vestingId);
+
+            // const tx = await contract.withdraw(vestingId);
             const vestings = await contract.vestings(wallet_add[0],vestingId);
-            console.log(vestings);
+
+            const queryParams = new URLSearchParams(location.search);
+            const dbVestingId = queryParams.get("vestingId");
+            console.log(dbVestingId,parseInt(vestings.claimed));
+            updateClaimed(dbVestingId,parseInt(vestings.claimed))
+
             setLoading(true)
-            await tx.wait()
+            // await tx.wait()
             setLoading(false)
             toast.success('Transaction successful', {
                 position: "top-center",
@@ -127,29 +131,15 @@ const VestingDetail = () => {
             })
         }
         catch (e) {
-            function extractReasonFromErrorMessage(error) {
-
-                if (error && error.message) {
-                    const errorMessage = error.message;
-                    const startIndex = errorMessage.indexOf('"');
-                    if (startIndex !== -1) {
-                        const endIndex = errorMessage.indexOf('"', startIndex + 1);
-                        if (endIndex !== -1) {
-                            return errorMessage.substring(startIndex, endIndex + 1);
-                        }
-                    }
-                }
-                return null;
-            }
-
             fireToast('error', e.message)
         }
 
     }
+    // withdraw()
 
     function calculateDuration(startTimestamp, endTimestamp) {
-        const start = new Date(startTimestamp * 1000); // Convert to milliseconds
-        const end = new Date(endTimestamp * 1000); // Convert to milliseconds
+        const start = new Date(startTimestamp).getTime(); // Convert to milliseconds
+        const end = new Date(endTimestamp).getTime(); // Convert to milliseconds
 
         const durationInMilliseconds = end - start;
 
@@ -164,7 +154,7 @@ const VestingDetail = () => {
 
         return formattedDuration;
     }
-    function convertUnixTimestampToDateTime(unixTimestamp) {
+    function convertToDateTime(unixTimestamp) {
         const date = new Date(unixTimestamp);
 
         const dateTimeFormat = `${date.getDate()}-${date.getMonth()}-${date.getFullYear()} 
@@ -273,9 +263,9 @@ const VestingDetail = () => {
                                         <p className={style.input_label}>Amount</p>
                                         <p className={style.data}>{(parseInt(data.amount))}</p>
                                         <p className={style.input_label}>Start Time</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.startTime)}</p>
+                                        <p className={style.data}>{convertToDateTime(data.startTime)}</p>
                                         <p className={style.input_label}>End Time</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.endTime)}</p>
+                                        <p className={style.data}>{convertToDateTime(data.endTime)}</p>
 
 
                                         <p className={style.input_label}>Duration</p>
@@ -289,11 +279,11 @@ const VestingDetail = () => {
                                     </div>
                                     <div className={style.input_form_div_left}>
                                         <p className={style.input_label}>Claimed</p>
-                                        <p className={style.data}>{Number(data.claimed)}</p>  {/* Number(data.claimed) / (10 ** decimal)*/}
+                                        <p className={style.data}>{Number(data.claimed)}</p>  
                                         <p className={style.input_label}>Locked</p>
                                         <p className={style.data}>{statusOfVesting ? "Active" : "Unactive"}</p>
                                         <p className={style.input_label}>Cliff</p>
-                                        <p className={style.data}>{convertUnixTimestampToDateTime(data.cliff)}</p>
+                                        <p className={style.data}>{convertToDateTime(data.cliff)}</p>
                                         <p className={style.input_label}>Slice Period</p>
                                         <p className={style.data}>{convertSeconds(parseInt(data.slicePeriod))}</p>
                                         <p className={style.input_label}>Recive on Interval</p>

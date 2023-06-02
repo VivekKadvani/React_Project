@@ -17,12 +17,17 @@ const HeaderMain = () => {
 
     async function connectWallet() {
         try {
-            // const requestLogin = await fetch("/login");
+            const requestLogin = await fetch("/api/login");
+            const response = await requestLogin.json();
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
-            const provider  = new ethers.providers.Web3Provider(window.ethereum);
-            const messageObj = {nounce : (Math.random()*100) , accountAddress:acc[0]}
-            const signedMessage = await provider.getSigner().signMessage(JSON.stringify(messageObj));
-            userRegistration(messageObj, signedMessage)
+
+            if(response.error === "invalid"){
+                const provider  = new ethers.providers.Web3Provider(window.ethereum);
+                const messageObj = {nounce : (Math.random()*100) , accountAddress:acc[0]}
+                const signedMessage = await provider.getSigner().signMessage(JSON.stringify(messageObj));
+                userRegistration(messageObj, signedMessage)
+            }
+
             const start = acc[0].substring(0, 6);
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`

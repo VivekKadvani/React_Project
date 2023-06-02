@@ -108,18 +108,22 @@ const ConfirmLock = ({ data }) => {
             //approval check
             const tokenContractAddress = addressOfToken;
             let Tokencontract = null;
-            if (provider.provider.networkVersion == 80001)
+            if (provider.provider.networkVersion == 80001){
+                console.log(true);
                 Tokencontract = await fetch(`https://api-testnet.polygonscan.com/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=6Z536YUCYRCIDW1CR53QAS1PYZ41X2FA7K`)
+            }
             else if (provider.provider.networkVersion == 11155111)
                 Tokencontract = await fetch(`https://api-sepolia.etherscan.io/api?module=contract&action=getabi&address=${tokenContractAddress}&apikey=WSG13CQU7C9GAHQIRH3J51BPRDYDSC835B`)
             const respo = await Tokencontract.json()
-            // const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
-            // const allowance = await Tcontract.allowance(wallet_add[0], contractAddress);
-            // if (parseInt(allowance) <= amount) {
-            //     const approval = await Tcontract.approve(contractAddress, amount)
-            //     await approval.wait();
-            // }
-            // const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+            const Tcontract = new ethers.Contract(tokenContractAddress, respo.result, signer);
+            const allowance = await Tcontract.allowance(wallet_add[0], contractAddress);
+            if (parseInt(allowance) <= amount) {
+                const approval = await Tcontract.approve(contractAddress, amount)
+                await approval.wait();
+            }
+            console.log("inner");
+            await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+            
             addvestingToDB(  
                 start,
                 cliff,

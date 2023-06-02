@@ -141,3 +141,16 @@ export const userRegistration = async(messageObj,signedMessage) =>{
         headers
     })
 }
+
+export const updateClaimed = async(vestingId,claimed) =>{
+    console.log(vestingId,claimed);
+    const response = await fetch(
+        "/api/currentvests/findvesting/updateclaiming",
+        {
+            method:"PUT",
+            body: JSON.stringify({vestingId,claimed}),
+            headers
+        },
+    );
+    console.log(await response.json());
+}

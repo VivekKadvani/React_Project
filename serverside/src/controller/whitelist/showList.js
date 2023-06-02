@@ -2,6 +2,7 @@ const { whitelist } = require("../../../models");
 
 const showlist = async (req, res) => {
   try {
+    console.log(req);
     const { networkId } = req.query;
     const list = await whitelist.findAll({
       where: { networkId },

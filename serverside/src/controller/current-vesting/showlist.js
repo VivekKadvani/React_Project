@@ -9,7 +9,8 @@ const showList = async (req, res) => {
                 {
                     beneficiary: beneficiaryAddress,
                     networkId
-                }
+                },
+                order:[["vestingNo","ASC"]]
             });
 
         res.json({ data: beneficiaryData});

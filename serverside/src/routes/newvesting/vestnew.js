@@ -2,6 +2,8 @@ const express = require("express");
 const locktoken = require("../../controller/new-vesting/locktoken");
 const router = express.Router();
 
-router.post("/locktoken",locktoken);
+const {lockingValidation} = require("../../middleware/validation")
 
-module.exports = router; 
+router.post("/locktoken",lockingValidation,locktoken);
+
+module.exports = router;
