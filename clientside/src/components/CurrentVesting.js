@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from 'react'
 import { Dna } from 'react-loader-spinner'
 import { AppContext } from '../App'
 import { NavLink } from 'react-router-dom'
-import ABI from '../ABI/ABI.json'
 import Popup from './Popup'
 const ethers = require("ethers")
 

@@ -21,7 +21,7 @@ const HeaderMain = () => {
             const response = await requestLogin.json();
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
 
-            if(response.error === "invalid"){
+            if(response.error === "invalid"  ||  response.error === "not registered"){
                 const provider  = new ethers.providers.Web3Provider(window.ethereum);
                 const messageObj = {nounce : (Math.random()*100) , accountAddress:acc[0]}
                 const signedMessage = await provider.getSigner().signMessage(JSON.stringify(messageObj));
@@ -31,22 +31,24 @@ const HeaderMain = () => {
             const start = acc[0].substring(0, 6);
             const end = acc[0].substring(acc[0].length - 4);
             const Short_acc = `${start}...${end}`
-            localStorage.setItem("WalletAddress", Short_acc)
-            WalletConnection ? setLabel(Short_acc) : setLabel("Connect")
-            await setWalletConnection(true);
+            localStorage.setItem("WalletAddress", Short_acc);
+            setWalletConnection(true);
+            setLabel(Short_acc)
+            localStorage.setItem("MetamaskConnection","true");
         } catch (error) {
             console.log(error);
             setLabel("Connect")
         }
     };
-    //set label on connect 
-    useEffect(() => {
 
-        (!WalletConnection) ? connectWallet() : connectWallet()
-    }, [Flag])
-    window.addEventListener('load', () => {
-        setFlag(Flag + 1);
-    });
+    //set label on connect
+    useEffect(() => {
+        (localStorage.getItem("MetamaskConnection") == "true") ?   connectWallet() : setLabel("Connect")
+    },[Flag])
+
+    window.addEventListener("load",()=>{
+        setFlag(Flag+1)
+    })
 
     //set label on disconnect
     window.ethereum.on("accountsChanged", (accounts) => {
@@ -54,10 +56,10 @@ const HeaderMain = () => {
             setLabel("Connect")
             setFlag(Flag + 1)
             setWalletConnection(false)
+            localStorage.setItem("MetamaskConnection","false")
         }
         else {
             setLabel(accounts[0])
-            setWalletConnection(true)
             setFlag(Flag + 1)
         }
     })

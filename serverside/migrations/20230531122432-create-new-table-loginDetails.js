@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true
       },
       nounce: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(100,20),
       }
     });
   },

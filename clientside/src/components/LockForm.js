@@ -46,6 +46,7 @@ const LockForm = () => {
                 provider = provider.provider;
                 console.log(provider);
                 let response = await fetch(`/api/whitelist/list?networkId=${provider.chainId}`)
+                console.log(response);
                 response = await response.json();
                 console.log(response);
                 setData(response);

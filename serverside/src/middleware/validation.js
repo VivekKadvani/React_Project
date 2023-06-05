@@ -3,6 +3,25 @@ const Joi = require("joi");
 const addressRegex = /^(0x)?[0-9a-fA-F]{40}$/; //  wallet address pattern
 const networkIdRegex = /^(0x)?[0-9a-fA-F]{4}$/; // network ID pattern
 
+const registrationValidation = (req,res,next)=>{
+
+    const schema = Joi.object({
+        signedMessage: Joi.string().required(),
+        messageObj: Joi.object({
+          nounce: Joi.number().required(),
+          accountAddress: Joi.string().required()
+        }).required()
+
+    }).unknown(true);
+
+    const {error} = schema.validate(req.body, { aboutEarly: true });
+    if(error){
+        const {details} = error;
+        res.json({error: details});
+    }
+    else next();
+}
+
 const lockingValidation = (req,res,next)=>{
     const schema = Joi.object({
         startTime:Joi.number().integer().positive().required().optional(),
@@ -67,7 +86,6 @@ const addToListValidation = (req,res,next)=>{
         res.json({error: details});
     }
     else next();
-
 }
 
 const findVestingValidation = (req,res,next)=>{
@@ -104,7 +122,8 @@ const updateClaimedValidation = (req,res,next)=>{
         claimed: Joi.number().positive().required(),
     }).unknown(true);
     const {vestingId, claimed} = req.body;
-    const {error} = schema.validate({vestingId, claimed:claimed/10**18}, { aboutEarly:true });
+    console.log({vestingId, claimed:(claimed/(10**18))});
+    const {error} = schema.validate({vestingId, claimed:(claimed/(10**18))}, { aboutEarly:true });
     if(error){
         const {details} = error;
         res.json({error: details});
@@ -113,11 +132,12 @@ const updateClaimedValidation = (req,res,next)=>{
 }
 
 module.exports = {
+    registrationValidation,
     lockingValidation,
     whitelistingValidation,
     deleFromListValidation,
     addToListValidation,
     findVestingValidation,
     currentListingValidation,
-    updateClaimedValidation
+    updateClaimedValidation,
 }

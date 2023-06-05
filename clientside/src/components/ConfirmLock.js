@@ -122,9 +122,12 @@ const ConfirmLock = ({ data }) => {
                 await approval.wait();
             }
             console.log("inner");
-            await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
-            
-            addvestingToDB(  
+            const lock = await contract.lock(amount, start, duration, slicePeriod, cliff, beneficiaries, addressOfToken);
+
+            setTnRunnig(true);
+            await lock.wait();
+
+            addvestingToDB(
                 start,
                 cliff,
                 slicePeriod,
@@ -134,8 +137,6 @@ const ConfirmLock = ({ data }) => {
                 whitemod_flag
             );
 
-            setTnRunnig(true);
-            // await lock.wait();
             setTnRunnig(false);
             navigate('/currentVesting');
         }

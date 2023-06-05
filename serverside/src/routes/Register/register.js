@@ -3,9 +3,10 @@ const router = express.Router()
 const ethers = require("ethers");
 const jwt = require("jsonwebtoken");
 const {loginDetail} = require("../../../models");
+const { registrationValidation } = require("../../middleware/validation");
 
 
-router.post("/",async (req,res)=>{
+router.post("/", registrationValidation,async (req,res)=>{
     const {signedMessage, messageObj} = req.body;
     const {accountAddress,nounce} = messageObj;
     try {

@@ -87,18 +87,34 @@ const VestingDetail = () => {
     }
 
     const calculate_withdrawable = async () => {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, ABI, signer);
-        const withdrawable = await contract.calculate_available_withdraw_token(vestingId);
-        setWithdrawableToken(parseInt(withdrawable));
-        if (parseInt(withdrawable) == 0) {
-            setDisable(true)
-            fireToast('warn', 'Not enough amount for withdraw')
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, ABI, signer);
+            const withdrawable = await contract.calculate_available_withdraw_token(vestingId);
+            setWithdrawableToken(parseInt(withdrawable));
+            if (parseInt(withdrawable) == 0) {
+                setDisable(true)
+                fireToast('warn', 'Not enough amount for withdraw')
+            }
+            else
+                setDisable(false)
+        } catch (error) {
+            if(error.message.include("Vesting not started yet")){
+                toast.error('Vesting not started yet', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: whitemod_flag ? "light" : "dark",
+                })
+            }
+            console.log(error.message.include("Vesting not started yet"));
         }
-        else
-            setDisable(false)
     }
 
     const withdraw = async () => {
@@ -107,17 +123,17 @@ const VestingDetail = () => {
             const wallet_add = await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, ABI, signer);
+            console.log(vestingId);
+            const withdraw =  await contract.withdraw(vestingId);
+            setLoading(true)
 
-            // const tx = await contract.withdraw(vestingId);
+            await withdraw.wait();
             const vestings = await contract.vestings(wallet_add[0],vestingId);
-
             const queryParams = new URLSearchParams(location.search);
             const dbVestingId = queryParams.get("vestingId");
             console.log(dbVestingId,parseInt(vestings.claimed));
             updateClaimed(dbVestingId,parseInt(vestings.claimed))
 
-            setLoading(true)
-            // await tx.wait()
             setLoading(false)
             toast.success('Transaction successful', {
                 position: "top-center",

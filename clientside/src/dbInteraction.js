@@ -2,7 +2,6 @@ const { ethers } = require("ethers");
 const { toast } = require("react-toastify");
 
 let provider = new ethers.providers.Web3Provider(window.ethereum);
-const wallet_add = await provider.send("eth_requestAccounts", []);
 const signer = provider.getSigner();
 provider = provider.provider
 
@@ -99,7 +98,7 @@ export const removeFromWhitelistDB = async (tokenAddress, whitemod_flag) => {
 
 export const addvestingToDB = async(startTime,cliff,slicePeriod,endTime,tokenAddress,amount,whitemod_flag)=>{
 
-    
+    const wallet_add = await window.ethereum.request({ method: "eth_requestAccounts" });
     const networkId = provider.chainId;
 
     try {
