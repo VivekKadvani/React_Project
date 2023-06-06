@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
     {
       listNo: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
       },
       tokenAddress: {
         type: DataTypes.STRING,

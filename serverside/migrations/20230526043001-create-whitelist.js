@@ -7,7 +7,7 @@ module.exports = {
       {
         listNo: {
           type: Sequelize.INTEGER,
-          autoIncrement: true,
+          allowNull: false
         },
         tokenAddress: {
           type: Sequelize.STRING,

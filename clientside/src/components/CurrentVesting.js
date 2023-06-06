@@ -8,11 +8,10 @@ const ethers = require("ethers")
 const CurrentVesting = () => {
 
     const { WalletConnection, setWalletConnection } = useContext(AppContext)
-    const { whitemod_flag, setWhitemodflag } = useContext(AppContext);
+    const { whitemod_flag } = useContext(AppContext);
     const [data, setData] = useState()
     const [loading, setLoading] = useState(false)
     const [flag, setFlag] = useState(0)
-    const contractAddress = '0xf8d318205eD763959Fb79FF55469C6071Fe061a7';
 
     const style = {
         outer_div: `flex min-h-fit items-center px-24`,

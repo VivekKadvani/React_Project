@@ -21,7 +21,7 @@ const HeaderMain = () => {
             const response = await requestLogin.json();
             const acc = await window.ethereum.request({ method: "eth_requestAccounts" });
 
-            if(response.error === "invalid"  ||  response.error === "not registered"){
+            if(response.error === "invalid"  ||  response.error === "not registered" || response.error === "cookies not received"){
                 const provider  = new ethers.providers.Web3Provider(window.ethereum);
                 const messageObj = {nounce : (Math.random()*100) , accountAddress:acc[0]}
                 const signedMessage = await provider.getSigner().signMessage(JSON.stringify(messageObj));
@@ -43,6 +43,7 @@ const HeaderMain = () => {
 
     //set label on connect
     useEffect(() => {
+
         (localStorage.getItem("MetamaskConnection") == "true") ?   connectWallet() : setLabel("Connect")
     },[Flag])
 

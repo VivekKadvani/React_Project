@@ -27,6 +27,8 @@ app.use("/api/whitelist",auth, whitelistRoute);
 
 // listening the request on specified port
 const port  =  process.env.PORT
-app.listen(port,()=>{
+const server = app.listen(port,()=>{
     console.log(`listening on port ${port}`);
 })
+
+module.exports = server;

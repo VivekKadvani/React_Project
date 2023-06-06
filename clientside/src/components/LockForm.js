@@ -44,11 +44,8 @@ const LockForm = () => {
             try {
                 let provider = new ethers.providers.Web3Provider(window.ethereum);
                 provider = provider.provider;
-                console.log(provider);
                 let response = await fetch(`/api/whitelist/list?networkId=${provider.chainId}`)
-                console.log(response);
                 response = await response.json();
-                console.log(response);
                 setData(response);
             } catch (e) {
                 console.log(e);

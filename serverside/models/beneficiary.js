@@ -3,7 +3,7 @@ const { Model, Sequelize } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class beneficiary extends Model {
     static associate(models) {
-      beneficiary.belongsToMany(models.vesting, {foreignKey:"vestingId", through:"beneficiarybelongstovesting"})
+      beneficiary.belongsTo(models.vesting, {foreignKey:"vestingId"})
     }
   }
   beneficiary.init(
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
         references :{
-          model:"vesting",
+          model:"vestings",
           key:"vestingId",
         }
       }

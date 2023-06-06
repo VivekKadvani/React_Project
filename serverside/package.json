@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "NODE_ENV=test mocha  spec/test/test.js --timeout=100000 --exit"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.11.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.31.1"
+    "sequelize": "^6.32.0",
+    "supertest": "^6.3.3"
   },
   "devDependencies": {
     "chai": "^4.3.7",

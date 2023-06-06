@@ -3,7 +3,7 @@ const { Model, Sequelize } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class vesting extends Model {
     static associate(models) {
-      vesting.hasMany(models.beneficiary, {foreignKey:"vestingId"});
+      vesting.hasOne(models.beneficiary, {foreignKey:"vestingId"});
       vesting.belongsTo(models.whitelist, {foreignKey : "tokenAddress"});
     }
   }
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         references:{
-          model:"whitelist",
+          model:"whitelists",
           key:"tokenAddress"
         }
       },

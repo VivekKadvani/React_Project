@@ -10,6 +10,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('tableName', 'newColumnName');
+    await queryInterface.removeColumn('whitelists', 'decimals');
   }
 };

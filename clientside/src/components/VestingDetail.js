@@ -101,7 +101,7 @@ const VestingDetail = () => {
             else
                 setDisable(false)
         } catch (error) {
-            if(error.message.include("Vesting not started yet")){
+            if(error.message?.include("Vesting not started yet")){
                 toast.error('Vesting not started yet', {
                     position: "top-center",
                     autoClose: 5000,
@@ -151,7 +151,6 @@ const VestingDetail = () => {
         }
 
     }
-    // withdraw()
 
     function calculateDuration(startTimestamp, endTimestamp) {
         const start = new Date(startTimestamp).getTime(); // Convert to milliseconds
@@ -178,7 +177,7 @@ const VestingDetail = () => {
 
         return dateTimeFormat;
     }
-    
+
     function convertSeconds(seconds) {
         const days = Math.floor(seconds / (24 * 60 * 60));
         seconds %= 24 * 60 * 60;
